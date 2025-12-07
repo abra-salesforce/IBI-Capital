@@ -1,0 +1,30 @@
+<template>
+    <div class="tableWrapper">
+        <table class="taskTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Assigned to</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={tasks} for:item="t">
+                    <tr key={t.Id} data-id={t.Id} onclick={handleSelectTC}>
+                        <td class="is-bold">{t.Subject}</td>
+                        <td class="is-bold">{t.Date}</td>
+                        <td class="hide-sm">{t.AssignedTo}</td>
+                        <td>
+                            <lightning-input
+                                type="checkbox"
+                                label="Completed"
+                                checked={t.Completed}>
+                            </lightning-input>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</template>

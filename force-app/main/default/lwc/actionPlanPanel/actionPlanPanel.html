@@ -1,0 +1,55 @@
+<template>
+    <h1>Action Plans</h1>
+    <div class="plansContainer">
+        <div class="outerAccordion">
+            <template for:each={plans} for:item="plan">
+                <div key={plan.Id} class="accSection">
+                    <div class="accHeader"
+                        data-id={plan.Id}
+                        data-open={plan.isOpen}
+                        onclick={handlePlanHeaderClick}>
+                        
+                        <div class="accLeft">
+                            <span class="accChevron">
+                                <lightning-icon
+                                    icon-name="utility:chevronright"
+                                    size="x-small">
+                                </lightning-icon>
+                            </span>
+
+                            <span>{plan.Name}</span>
+                        </div>
+                        <span class="accProgress">{plan.Progress__c}%</span>
+
+                        <lightning-input
+                            type="checkbox"
+                            label="Completed"
+                            checked={plan.Completed}
+                            disabled>
+                        </lightning-input>
+                    </div>
+
+                    <template if:true={plan.isOpen}>
+                        <div class="accBody">
+                            <div class="planContainer">
+                                <div class="field">
+                                    <div class="label">Items Completed</div>
+                                    <div class="value">{plan.CompletedTasksString}</div>
+                                </div>
+
+                                <lightning-accordion class="accordion"
+                                    allow-multiple-sections-open
+                                    active-section-name={activeSections}
+                                    onsectiontoggle={handleSectionToggle}>
+                                    <lightning-accordion-section name="A" label="View Task List" class="accRow">
+                                        <c-action-plan-task-table plan={plan}></c-action-plan-task-table>
+                                    </lightning-accordion-section>
+                                </lightning-accordion>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

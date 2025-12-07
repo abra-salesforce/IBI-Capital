@@ -1,0 +1,93 @@
+.header{
+  display: flex;
+  justify-content: space-between;
+}
+
+.field{min-width:0;} 
+
+.label{
+  color:#5f6a7d;
+  font-size:.75rem;
+  line-height:1.2;
+  margin-bottom:.25rem;
+}
+.value{
+  font-weight:600;
+  font-size:0.9rem;
+  line-height:1.3;
+  color: var(--lwc-colorTextDefault, #0f1720);
+  word-break: break-word;
+}
+
+.slds-accordion__section{
+  padding-left: 0;
+}
+
+:host {
+    background-color: white;
+    border-radius: 5px;
+}
+
+
+.outerAccordion {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.accSection {
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #d9d9d9;
+    background-color: white;
+}
+
+.accHeader {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.accHeader:hover {
+    background: #e6eced;
+}
+
+.accLeft {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.accChevron {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.accChevron lightning-icon {
+    transition: transform 0.2s ease;
+}
+
+.accHeader[data-open="true"] .accChevron lightning-icon {
+    transform: rotate(90deg);
+}
+
+.accProgress {
+    font-weight: 500;
+    text-align: center;
+    justify-self: center;
+}
+
+.accBody {
+    padding: 0.75rem;
+    background: #fff;
+}
+
+.plansContainer {
+  background-color: white;
+  border-radius: 10px;
+  padding: 1rem;
+}
