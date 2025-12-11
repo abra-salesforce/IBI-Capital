@@ -3,13 +3,17 @@
   justify-content: space-between;
 }
 
-.field{min-width:0;} 
+.field{
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-right: 1rem;
+} 
 
 .label{
   color:#5f6a7d;
   font-size:.75rem;
   line-height:1.2;
-  margin-bottom:.25rem;
 }
 .value{
   font-weight:600;
@@ -19,15 +23,10 @@
   word-break: break-word;
 }
 
-.slds-accordion__section{
-  padding-left: 0;
-}
-
 :host {
     background-color: white;
     border-radius: 5px;
 }
-
 
 .outerAccordion {
     display: flex;
@@ -43,22 +42,18 @@
 }
 
 .accHeader {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    padding: 0.25rem 0.75rem;
-    cursor: pointer;
-    font-size: 18px;
+    padding: 0.8rem;
 }
 
-.accHeader:hover {
-    background: #e6eced;
+.planName{
+    font-size: 16px;
 }
 
-.accLeft {
+.planTitle {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 1rem;
+    color: black;
 }
 
 .accChevron {
@@ -86,8 +81,61 @@
     background: #fff;
 }
 
-.plansContainer {
-  background-color: white;
-  border-radius: 10px;
-  padding: 1rem;
+.planStatus{
+  background-color: #f1f5f9;
+  border-radius: 5px;
+  padding: 3px 6px;
+  font-size: 12px;
+}
+
+.planDetails{
+  margin-top: 10px;
+  display: flex;
+  gap: 2rem;
+}
+
+.actionPlanHeader{
+  display: flex; 
+  gap: 0.7rem;
+  margin-bottom: 7px;
+}
+
+h1{
+  font-size: 20px; 
+}
+
+.divider{
+  height:1px;
+  background: rgba(0,0,0,.08);
+  margin: 8px 0.8rem 0;
+}
+
+.taskToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.8rem 0.5rem;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.taskLabel {
+  color: #0f1720;
+}
+
+.chevronIcon {
+  transition: transform 0.15s ease;
+}
+
+.taskToggle[data-open="true"] .chevronIcon {
+  transform: rotate(90deg);
+}
+
+.taskBody {
+  padding: 0 0.8rem 0.5rem;
+}
+
+.planContainer{
+  margin-top: 7px;
+  margin-bottom: 7px;
 }

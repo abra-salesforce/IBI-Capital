@@ -34,6 +34,10 @@ const TASK_QUERY = gql`
                   Id
                   Name { value }
                 }
+                ... on Group {
+                  Id
+                  Name { value }
+                }
               }
             }
           }

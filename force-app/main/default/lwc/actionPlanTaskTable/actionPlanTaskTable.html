@@ -1,25 +1,49 @@
 <template>
-    <div class="tableWrapper">
-        <table class="taskTable">
+    <div class="slds-scrollable_x">
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
             <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Date</th>
-                    <th>Assigned to</th>
-                    <th></th>
+                <tr class="slds-line-height_reset">
+                    <th scope="col">
+                        <div class="slds-truncate" title="Name">Name</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="Date">Date</div>
+                    </th>
+                    <th scope="col" class="slds-hide_small">
+                        <div class="slds-truncate" title="Assigned to">Assigned to</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="Completed">Completed</div>
+                    </th>
                 </tr>
             </thead>
             <tbody>
                 <template for:each={tasks} for:item="t">
-                    <tr key={t.Id} data-id={t.Id} onclick={handleSelectTC}>
-                        <td class="is-bold">{t.Subject}</td>
-                        <td class="is-bold">{t.Date}</td>
-                        <td class="hide-sm">{t.AssignedTo}</td>
+                    <tr key={t.Id}
+                        data-id={t.Id}
+                        onclick={handleSelectTC}
+                        class="slds-hint-parent">
+                        <td>
+                            <div class="slds-truncate slds-text-title_bold" title={t.Subject}>
+                                {t.Subject}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="slds-truncate slds-text-title_bold" title={t.Date}>
+                                {t.Date}
+                            </div>
+                        </td>
+                        <td class="slds-hide_small">
+                            <div class="slds-truncate" title={t.AssignedTo}>
+                                {t.AssignedTo}
+                            </div>
+                        </td>
                         <td>
                             <lightning-input
                                 type="checkbox"
                                 label="Completed"
-                                checked={t.Completed}>
+                                checked={t.Completed}
+                                variant="label-hidden">
                             </lightning-input>
                         </td>
                     </tr>
