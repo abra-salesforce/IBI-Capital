@@ -1,4 +1,4 @@
-public with sharing class PlanCreationService {
+public without sharing class PlanCreationService {
     public class PlanInput {
         @InvocableVariable(required=true)
         public Id planTemplateId;
@@ -106,10 +106,8 @@ public with sharing class PlanCreationService {
 		Id ownerId = type == 'User' ? (Id)template.get('Owner_User__c') : type == 'Queue' ? (Id)template.get('Owner_Queue__c') : null;
 		if (ownerId == null) {
 			String ownerPath = (String)template.get('Owner_API_Name__c');
-			Object v = getByPath(record, ownerPath);
-
-			if (v instanceof Id) ownerId = (Id)v;
-			else if (v instanceof String && String.isNotBlank((String)v)) ownerId = (Id)(String)v;
+			Object res = getByPath(record, ownerPath);
+			ownerId = (Id)res;
 		}
 
 		return ownerId;
