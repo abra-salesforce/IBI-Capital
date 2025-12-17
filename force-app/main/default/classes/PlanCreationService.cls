@@ -86,6 +86,7 @@ public without sharing class PlanCreationService {
 			Plan_Item__c pi = planTemplateItemToPlanItem.get(pti.Id);
 			
 			Id TaskAssignedTo = getOwner(pti.Default_Owner_Type__c, record, pti);
+			system.debug('TaskAssignedTo: ' + TaskAssignedTo);
 
 			Date baseDate = (input.startDate != null) ? input.startDate : Date.today();
             Integer durationDays = pti.Duration_Days__c != null ? Integer.valueOf(pti.Duration_Days__c) : 0;

@@ -1,71 +1,77 @@
 <template>
-    <div class="actionPlanHeader">
-        <lightning-icon icon-name="standard:work_plan_template_entry" alternative-text="action plan" size="medium"></lightning-icon>
-        <h1>Action Plans ({numberOfPlans})</h1>
+    <!-- Header -->
+    <div class="slds-page-header slds-p-around_small">
+        <div class="slds-media slds-media_center">
+            <div class="slds-media__figure">
+                <lightning-icon icon-name="standard:work_plan_template_entry" alternative-text="action plan" size="medium"></lightning-icon>
+            </div>
+            <div class="slds-media__body">
+                <h1 class="slds-text-heading_medium">Action Plans ({numberOfPlans})</h1>
+            </div>
+        </div>
     </div>
-    <div class="plansContainer">
-        <div class="outerAccordion">
-            <template for:each={plans} for:item="plan">
-                <div key={plan.Id} class="accSection">
-                    <div class="accHeader"
-                        data-id={plan.Id}
-                        data-open={plan.isOpen}>
-                        
-                        <div class="planTitle">
-                            <span class="planName">{plan.Name}</span>
-                            <div class="planStatus">
-                                {plan.Status__c}
-                            </div>
-                        </div>
-                            
 
-                        <div class="planDetails">
-                            <div class="field">
-                                <lightning-icon icon-name="utility:slack_user" alternative-text="User" size="x-small"></lightning-icon>
-                                <div class="label">{plan.Owner}</div>
-                            </div>
+    <div>
+        <template for:each={plans} for:item="plan">
+            <div key={plan.Id} class="slds-card slds-m-bottom_small">
+                <!-- header row -->
+                <div class="slds-p-around_small"
+                    data-id={plan.Id}
+                    data-open={plan.isOpen}>
 
-                            <div class="field">
-                                <lightning-icon icon-name="utility:event" alternative-text="Start Date" size="x-small"></lightning-icon>
-                                <div class="label">{plan.Start_Date__c}</div>
-                            </div>
+                    <!-- Row 1: title + status -->
+                    <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
+                        <!-- left -->
+                        <div class="slds-truncate">
+                            <span class="slds-text-heading_small slds-truncate" title={plan.Name}>
+                                {plan.Name}
+                            </span>
+                            <span class="slds-badge slds-m-left_small">{plan.Status__c}</span>
                         </div>
 
-                        <!--<lightning-input
-                            type="checkbox"
-                            label="Completed"
-                            checked={plan.Completed}
-                            disabled>
-                        </lightning-input>-->
+                        <!-- right -->
+                        <div class="lds-col slds-size_x-small slds-p-left_small">
+                            <span class="slds-m-bottom_medium">{plan.Progress__c}%</span>
+                            <lightning-progress-bar value={plan.Progress__c} size="medium"></lightning-progress-bar>
+                            <span class="slds-m-top_medium">1/4</span>
+                        </div>
                     </div>
 
-                    <div class="divider"></div>
+                    <!-- Row 2: details under title (align right) -->
+                    <div class="slds-grid slds-grid_vertical-align-center slds-m-top_x-small slds-text-body_small">
+                        <div class="slds-grid slds-grid_vertical-align-center">
+                            <lightning-icon icon-name="utility:user" alternative-text="User" size="x-small"></lightning-icon>
+                            <span class="slds-m-left_x-small">{plan.Owner}</span>
+                        </div>
 
-                    <div class="planContainer">
-                        <div class="taskToggle"
+                        <div class="slds-grid slds-grid_vertical-align-center slds-m-left_medium">
+                            <lightning-icon icon-name="utility:event" alternative-text="Start Date" size="x-small"></lightning-icon>
+                            <span class="slds-m-left_x-small">{plan.Start_Date__c}</span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="slds-border_bottom"></div>
+
+                <!-- tasks toggle -->
+                <div class="slds-p-around_small">
+                    <button class="slds-button slds-button_reset slds-text-title_bold slds-grid slds-grid_vertical-align-center"
                             data-id={plan.Id}
                             data-open={plan.tasksOpen}
                             onclick={handleToggleTasks}>
-                            <lightning-icon
-                                icon-name="utility:chevronright"
-                                size="xx-small"
-                                class="chevronIcon"
-                                alternative-text="Toggle Tasks">
-                            </lightning-icon>
-                            <span class="taskLabel">{plan.TaskListLabel}</span>
+                        <lightning-icon icon-name="utility:chevronright" size="xx-small" class="slds-m-right_x-small"
+                                        alternative-text="Toggle Tasks"></lightning-icon>
+                        <span>{plan.TaskListLabel}</span>
+                    </button>
+
+                    <template if:true={plan.tasksOpen}>
+                        <div class="slds-m-top_small">
+                            <c-action-plan-task-table plan={plan}></c-action-plan-task-table>
                         </div>
-
-                        <template if:true={plan.tasksOpen}>
-                            <div class="taskBody">
-                                <c-action-plan-task-table plan={plan}></c-action-plan-task-table>
-                            </div>
-                        </template>
-                    </div>
-
-
-
+                    </template>
                 </div>
-            </template>
-        </div>
+            </div>
+        </template>
     </div>
 </template>

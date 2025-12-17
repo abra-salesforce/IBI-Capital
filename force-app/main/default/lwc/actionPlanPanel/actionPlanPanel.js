@@ -22,8 +22,9 @@ const PLAN_QUERY = gql`
                   Id
                   Name { value }
                 }
-              }              Start_Date__c { value }
-              Progress__c { value }
+              }              
+              Start_Date__c { value }
+              Progress_Mandatory_Plan_Item__c { value }
             }
           }
         }
@@ -56,7 +57,7 @@ export default class ActionPlanPanel extends LightningElement {
             Total_Tasks__c: e.node.Total_Tasks__c?.value,
             Owner: e.node.Owner?.Name?.value,
             Start_Date__c: e.node.Start_Date__c?.value,
-            Progress__c: e.node.Progress__c?.value,
+            Progress__c: Number(e.node.Progress_Mandatory_Plan_Item__c?.value) || 0,
             Completed: e.node.Status__c?.value === 'Completed',
             CompletedTasksString: `${e.node.Completed_Tasks__c?.value || 0} of ${e.node.Total_Tasks__c?.value || 0}`,
             TaskListLabel: `View Task List (${e.node.Total_Tasks__c?.value || 0})`,

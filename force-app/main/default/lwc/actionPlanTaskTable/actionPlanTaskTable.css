@@ -1,32 +1,14 @@
-.taskTable {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  overflow: hidden;
+.checkboxWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
 }
 
-.taskTable thead th {
-  background: #f3f3f3;
-  font-weight: 600;
-  text-align: left;
-  padding: .65rem .75rem;
-  font-size: .85rem;
+.checkboxOnly {
+  display: inline-flex;
+  cursor: pointer;
 }
 
-.taskTable tbody td {
-  padding: 0.1rem 0.6rem;
-  border-bottom: 1px solid var(--border);
-  color: var(--text);
+.checkboxText {
+  cursor: default; /* הטקסט לא “לחיץ” */
 }
-
-.taskTable tbody tr:nth-child(even) { background: var(--row-alt); }
-.taskTable tbody tr:hover { background: var(--row-hover); }
-
-/*.taskTable th:last-child,
-.taskTable td:last-child {
-  width: 56px;
-  text-align: center;
-  padding-right: .25rem;
-}*/

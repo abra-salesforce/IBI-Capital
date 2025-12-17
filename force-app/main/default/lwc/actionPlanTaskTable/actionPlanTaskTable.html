@@ -1,54 +1,70 @@
 <template>
-    <div class="slds-scrollable_x">
-        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
-            <thead>
-                <tr class="slds-line-height_reset">
-                    <th scope="col">
-                        <div class="slds-truncate" title="Name">Name</div>
-                    </th>
-                    <th scope="col">
-                        <div class="slds-truncate" title="Date">Date</div>
-                    </th>
-                    <th scope="col" class="slds-hide_small">
-                        <div class="slds-truncate" title="Assigned to">Assigned to</div>
-                    </th>
-                    <th scope="col">
-                        <div class="slds-truncate" title="Completed">Completed</div>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <template for:each={tasks} for:item="t">
-                    <tr key={t.Id}
-                        data-id={t.Id}
-                        onclick={handleSelectTC}
-                        class="slds-hint-parent">
-                        <td>
-                            <div class="slds-truncate slds-text-title_bold" title={t.Subject}>
-                                {t.Subject}
-                            </div>
-                        </td>
-                        <td>
-                            <div class="slds-truncate slds-text-title_bold" title={t.Date}>
-                                {t.Date}
-                            </div>
-                        </td>
-                        <td class="slds-hide_small">
-                            <div class="slds-truncate" title={t.AssignedTo}>
-                                {t.AssignedTo}
-                            </div>
-                        </td>
-                        <td>
-                            <lightning-input
-                                type="checkbox"
-                                label="Completed"
-                                checked={t.Completed}
-                                variant="label-hidden">
-                            </lightning-input>
-                        </td>
+    <template lwc:if={loading}>
+        <div class="slds-align_absolute-center slds-p-around_medium">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+    </template>
+    <template lwc:else>
+        <div class="slds-scrollable_x">
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th scope="col">
+                            <div class="slds-truncate" title="Name">Name</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Date">Date</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Assigned to">Assigned to</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-hide" title="Completed">Completed</div>
+                        </th>
                     </tr>
-                </template>
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    <template for:each={tasks} for:item="t">
+                        <tr key={t.Id}
+                            data-id={t.Id}
+                            class="slds-hint-parent"
+                            onclick={handleSelectedRow}>
+                            <td>
+                                <div class="slds-truncate slds-text-title_bold" title={t.Subject}>
+                                    {t.Subject}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="slds-truncate slds-text-title_bold" title={t.Date}>
+                                    {t.Date}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="slds-truncate slds-text-title_bold" title={t.AssignedTo}>
+                                    {t.AssignedTo}
+                                </div>
+                            </td>
+                            <td class="slds-text-align_center">
+                                <lightning-input
+                                    type="checkbox"
+                                    checked={t.Completed}
+                                    class="pointer"
+                                    label={t.checkboxLabel}>
+                                </lightning-input>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+
+        <template lwc:if={openModal}>
+            <c-task-details-modal
+                task={selectedTask}
+                onclose={handleCloseModal}>
+            </c-task-details-modal>
+        </template>
+
+    </template>
+    
 </template>

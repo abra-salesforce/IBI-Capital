@@ -28,6 +28,7 @@ const TASK_QUERY = gql`
               Id
               Subject { value }
               Status { value }
+              Description { value }
               ActivityDate { value }
               Owner {
                 ... on User {
@@ -51,6 +52,8 @@ export default class ActionPlanTaskTable extends LightningElement {
     @api plan;
     @track taskIds = [];
     @track tasks = [];
+    loading = true;
+    @track selectedTask = null;
 
     get planItemVars() {
         return this.plan?.Id ? { planId: this.plan.Id } : undefined;
@@ -84,10 +87,26 @@ export default class ActionPlanTaskTable extends LightningElement {
             Status: e.node.Status?.value,
             Date: e.node.ActivityDate?.value,
             AssignedTo: e.node.Owner?.Name?.value,
-            Completed: e.node.Status?.value === 'Completed'
+            Description: e.node.Description?.value,
+            Completed: e.node.Status?.value === 'Completed',
+            checkboxLabel: e.node.Status?.value === 'Completed' ? 'Completed' : 'Mark as completed'
             })) ?? [];
+            this.loading = false;
         } else if (errors) {
             console.error('GraphQL errors:', errors);
         }
+    }
+
+    handleSelectedRow(event) {
+      const taskId = event.currentTarget.dataset.id;
+      this.selectedTask = this.tasks.find(t => t.Id === taskId);
+    }
+
+    get openModal() {
+      return this.selectedTask !== null;
+    }
+
+    handleCloseModal() {
+      this.selectedTask = null;
     }
 }

@@ -21,6 +21,7 @@ public with sharing class TaskPlanItemService {
         system.debug('syncPlanItemStatus');
         system.debug(newTasks);
         for(Task t : newTasks){
+            //t.addError('יצירת ה-Plan נכשלה. אנא פנו למנהל מערכת.');
             if(t.Plan_Item__c != null && (oldTasks == null || t.status != oldTasks.get(t.Id).status)) {
                 Plan_Item__c pi = new Plan_Item__c(Id = t.Plan_Item__c, Task_Status__c = t.Status);
                 planItemsToUpdate.add(pi);
