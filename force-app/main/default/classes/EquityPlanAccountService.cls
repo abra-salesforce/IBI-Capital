@@ -17,13 +17,12 @@ public with sharing class EquityPlanAccountService {
                 bucket(acc.Service_Type__c) != null &&
                 acc.ParentId != null &&
                 (
-                    acc.Id == null ||
                     (oldAccounts != null && oldAccounts.containsKey(acc.Id) &&
                         (
                             oldAccounts.get(acc.Id).ParentId != acc.ParentId ||
                             oldAccounts.get(acc.Id).Service_Type__c != acc.Service_Type__c
                         )
-                    )
+                    ) || acc.Id == null
             )) {
                 system.debug('acc: ' + acc);
                 String key = bucket(acc.Service_Type__c) + '-' + acc.ParentId;

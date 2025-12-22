@@ -1,4 +1,4 @@
-public with sharing class AccountMasterLinkingService {
+public without sharing class AccountMasterLinkingService {
     public static final Id BUSINESS_MASTER_RT = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('Business_Account_Master').getRecordTypeId();
     public static final Id PERSON_MASTER_RT = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('Person_Account_Master').getRecordTypeId();    
     
