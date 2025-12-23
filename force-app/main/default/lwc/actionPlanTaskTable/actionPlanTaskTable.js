@@ -1,5 +1,6 @@
 import { LightningElement, api, wire, track } from 'lwc';
 import { gql, graphql } from 'lightning/uiGraphQLApi';
+import updateStatus from '@salesforce/apex/ActionPlanPanelController.updateTaskStatus';
 
 const PLAN_ITEM_QUERY = gql`
   query ($planId: ID!) {
@@ -89,13 +90,22 @@ export default class ActionPlanTaskTable extends LightningElement {
             AssignedTo: e.node.Owner?.Name?.value,
             Description: e.node.Description?.value,
             Completed: e.node.Status?.value === 'Completed',
-            checkboxLabel: e.node.Status?.value === 'Completed' ? 'Completed' : 'Mark as completed'
+            checkboxLabel: e.node.Status?.value === 'Completed' ? 'Completed' : 'Mark as completed',
+            rowClass: `slds-hint-parent task-row ${this.getRowClassByStatus(e.node.Status?.value)}`
             })) ?? [];
             this.loading = false;
         } else if (errors) {
             console.error('GraphQL errors:', errors);
         }
     }
+
+    getRowClassByStatus(status) {
+      if (status === 'Completed') return 'task-success';
+      if (status === 'Open' || status === 'Reopen') return 'task-open';
+      if (status === 'Waiting in Dependency') return 'task-waiting';
+      return 'task-default';
+    }
+
 
     handleSelectedRow(event) {
       const taskId = event.currentTarget.dataset.id;
@@ -108,5 +118,17 @@ export default class ActionPlanTaskTable extends LightningElement {
 
     handleCloseModal() {
       this.selectedTask = null;
+    }
+
+    async handleCheckCompleted(event) {
+      event.stopPropagation();
+      const taskId = event.currentTarget.dataset.id;
+      const taskStatus = event.target.checked ? 'Completed' : 'Reopen';
+
+      try {
+        await updateStatus({ taskId: taskId, status: taskStatus });
+      } catch (e) {
+        console.error(e?.body?.message || e);
+      }
     }
 }

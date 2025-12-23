@@ -1,5 +1,4 @@
 <template>
-    <!-- Header -->
     <div class="slds-page-header slds-p-around_small">
         <div class="slds-media slds-media_center">
             <div class="slds-media__figure">
@@ -14,14 +13,11 @@
     <div>
         <template for:each={plans} for:item="plan">
             <div key={plan.Id} class="slds-card slds-m-bottom_small">
-                <!-- header row -->
                 <div class="slds-p-around_small"
                     data-id={plan.Id}
                     data-open={plan.isOpen}>
 
-                    <!-- Row 1: title + status -->
                     <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
-                        <!-- left -->
                         <div class="slds-truncate">
                             <span class="slds-text-heading_small slds-truncate" title={plan.Name}>
                                 {plan.Name}
@@ -29,24 +25,32 @@
                             <span class="slds-badge slds-m-left_small">{plan.Status__c}</span>
                         </div>
 
-                        <!-- right -->
-                        <div class="lds-col slds-size_x-small slds-p-left_small">
-                            <span class="slds-m-bottom_medium">{plan.Progress__c}%</span>
-                            <lightning-progress-bar value={plan.Progress__c} size="medium"></lightning-progress-bar>
-                            <span class="slds-m-top_medium">1/4</span>
-                        </div>
+                        <template lwc:if={test}>
+                            <span class="slds-m-top_small slds-m-right_small">
+                                <lightning-icon icon-name="utility:check" size="small" variant="success"></lightning-icon>
+                            </span>
+                        </template>
+                        <template lwc:else>
+                            <div class="lds-col slds-size_x-small slds-p-left_small">
+                                <span class="slds-m-bottom_medium">{plan.Progress_Formula__c}%</span>
+                                <lightning-progress-bar value={plan.Progress_Formula__c} size="medium"></lightning-progress-bar>
+                                <span class="slds-m-top_medium">1/4</span>
+                            </div>
+                        </template>
+
                     </div>
 
-                    <!-- Row 2: details under title (align right) -->
                     <div class="slds-grid slds-grid_vertical-align-center slds-m-top_x-small slds-text-body_small">
                         <div class="slds-grid slds-grid_vertical-align-center">
                             <lightning-icon icon-name="utility:user" alternative-text="User" size="x-small"></lightning-icon>
-                            <span class="slds-m-left_x-small">{plan.Owner}</span>
+                            <span class="slds-m-left_x-small">{plan.OwnerName}</span>
                         </div>
 
                         <div class="slds-grid slds-grid_vertical-align-center slds-m-left_medium">
                             <lightning-icon icon-name="utility:event" alternative-text="Start Date" size="x-small"></lightning-icon>
-                            <span class="slds-m-left_x-small">{plan.Start_Date__c}</span>
+                            <!--<span class="slds-m-left_x-small">{plan.Start_Date__c}</span>-->
+                            <lightning-formatted-date-time value={plan.Start_Date__c} year="numeric" month="2-digit" day="2-digit"></lightning-formatted-date-time>
+
                         </div>
                     </div>
                 </div>
@@ -54,7 +58,6 @@
 
                 <div class="slds-border_bottom"></div>
 
-                <!-- tasks toggle -->
                 <div class="slds-p-around_small">
                     <button class="slds-button slds-button_reset slds-text-title_bold slds-grid slds-grid_vertical-align-center"
                             data-id={plan.Id}

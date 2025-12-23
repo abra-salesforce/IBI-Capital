@@ -19,6 +19,9 @@
                             <div class="slds-truncate" title="Assigned to">Assigned to</div>
                         </th>
                         <th scope="col">
+                            <div class="slds-truncate" title="Assigned to">Status</div>
+                        </th>
+                        <th scope="col">
                             <div class="slds-hide" title="Completed">Completed</div>
                         </th>
                     </tr>
@@ -27,7 +30,7 @@
                     <template for:each={tasks} for:item="t">
                         <tr key={t.Id}
                             data-id={t.Id}
-                            class="slds-hint-parent"
+                            class={t.rowClass}
                             onclick={handleSelectedRow}>
                             <td>
                                 <div class="slds-truncate slds-text-title_bold" title={t.Subject}>
@@ -44,11 +47,17 @@
                                     {t.AssignedTo}
                                 </div>
                             </td>
-                            <td class="slds-text-align_center">
+                            <td>
+                                <div class="slds-truncate slds-text-title_bold" title={t.Status}>
+                                    {t.Status}
+                                </div>
+                            </td>
+                            <td>
                                 <lightning-input
                                     type="checkbox"
+                                    data-id={t.Id}
                                     checked={t.Completed}
-                                    class="pointer"
+                                    onclick={handleCheckCompleted}
                                     label={t.checkboxLabel}>
                                 </lightning-input>
                             </td>

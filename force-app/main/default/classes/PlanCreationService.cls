@@ -45,7 +45,7 @@ public without sharing class PlanCreationService {
 									Plan_Template__c = planTemplate.Id,
 									Notes__c = planTemplate.Description__c);
         plan.put(input.lookupFieldApiName, input.recordId);
-		plan.Assigned_To__c = planAssignedTo;
+		plan.OwnerId = planAssignedTo;
 		
 		insert plan;
 		List<Plan_Item__c> planItems = new List<Plan_Item__c>();

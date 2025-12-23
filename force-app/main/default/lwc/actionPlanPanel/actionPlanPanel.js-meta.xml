@@ -5,4 +5,9 @@
     <targets>
         <target>lightning__RecordPage</target>
     </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+        <property name="planLookupFieldApiName" type="String" label="Plan lookup field API name" description="API name of the lookup field on Plan__c that points to the record (e.g., Case__c)"/>
+        </targetConfig>
+  </targetConfigs>
 </LightningComponentBundle>

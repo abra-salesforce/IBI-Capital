@@ -54,11 +54,11 @@ public with sharing class ActionPlanServiceTest {
         PlanCreationService.createPlan(new List<PlanCreationService.PlanInput>{ input });
         Test.stopTest();
 
-        List<Plan__c> plans = [SELECT Id, Name, Plan_Template__c, Assigned_To__c, Notes__c, Case__c FROM Plan__c WHERE Plan_Template__c = :tpl.Id AND Case__c = :c.Id];
+        List<Plan__c> plans = [SELECT Id, Name, Plan_Template__c, OwnerId, Notes__c, Case__c FROM Plan__c WHERE Plan_Template__c = :tpl.Id AND Case__c = :c.Id];
         Assert.isTrue(plans.size() == 1);
         Plan__c createdPlan = plans[0];
         Assert.isTrue(c.Id == createdPlan.Case__c);
-        Assert.isTrue(u2.Id == createdPlan.Assigned_To__c);
+        Assert.isTrue(u2.Id == createdPlan.OwnerId);
 
         List<Plan_Item__c> planItems = [SELECT Id, Plan__c, Step_Order__c, Previous_Plan_Item__c FROM Plan_Item__c WHERE Plan__c = :createdPlan.Id ORDER BY Step_Order__c];
         Assert.isTrue(planItems.size() == 2);

@@ -1,14 +1,3 @@
-.checkboxWrap {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-}
-
-.checkboxOnly {
-  display: inline-flex;
-  cursor: pointer;
-}
-
-.checkboxText {
-  cursor: default; /* הטקסט לא “לחיץ” */
-}
+.task-row.task-success td { background: #c5f3e4 !important; }
+.task-row.task-open td { background: #ffffff !important; }
+.task-row.task-waiting td { background: #e5e5e5 !important; }

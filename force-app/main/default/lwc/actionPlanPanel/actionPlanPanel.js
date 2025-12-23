@@ -1,71 +1,36 @@
 import { LightningElement, api, track, wire } from 'lwc';
 import { gql, graphql } from 'lightning/uiGraphQLApi';
-
-const PLAN_QUERY = gql`
-  query ($caseId: ID!) {
-    uiapi {
-      query {
-        Plan__c(where: { Case__c: { eq: $caseId } }, orderBy: { CreatedDate: { order: ASC } }) {
-          edges {
-            node {
-              Id
-              Name { value }
-              Status__c { value }
-              Completed_Tasks__c { value }
-              Total_Tasks__c { value }
-              Owner {
-                ... on User {
-                  Id
-                  Name { value }
-                }
-                ... on Group {
-                  Id
-                  Name { value }
-                }
-              }              
-              Start_Date__c { value }
-              Progress_Mandatory_Plan_Item__c { value }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
+import getPlans from '@salesforce/apex/ActionPlanPanelController.getPlans';
 
 export default class ActionPlanPanel extends LightningElement {
     activeSections = [];
     @track plans = [];    
     @api recordId;
+    @api planLookupFieldApiName;
 
-    get planVars() {
-      console.log('case:' + this.recordId);
-      return this.recordId
-          ? { caseId: this.recordId }
-          : undefined;
+    connectedCallback() {
+      this.loadPlans();
     }
 
-    @wire(graphql, { query: PLAN_QUERY, variables: '$planVars' })
-    wiredPlan({ data, errors }) {
-        if (data) {
-            this.plans =
-            data.uiapi?.query?.Plan__c?.edges?.map(e => ({
-            Id: e.node.Id,
-            Name: e.node.Name?.value,
-            Status__c: e.node.Status__c?.value,
-            Completed_Tasks__c: e.node.Completed_Tasks__c?.value,
-            Total_Tasks__c: e.node.Total_Tasks__c?.value,
-            Owner: e.node.Owner?.Name?.value,
-            Start_Date__c: e.node.Start_Date__c?.value,
-            Progress__c: Number(e.node.Progress_Mandatory_Plan_Item__c?.value) || 0,
-            Completed: e.node.Status__c?.value === 'Completed',
-            CompletedTasksString: `${e.node.Completed_Tasks__c?.value || 0} of ${e.node.Total_Tasks__c?.value || 0}`,
-            TaskListLabel: `View Task List (${e.node.Total_Tasks__c?.value || 0})`,
-            tasksOpen: false
-            })) ?? [];
-        } else if (errors) {
-          console.error('GraphQL errors:', JSON.stringify(errors));
-        }
+    async loadPlans() {
+      try {
+        const result = await getPlans({ recordId: this.recordId, apiFieldName: this.planLookupFieldApiName });
+        this.plans = (result || []).map(p => {
+            const completedTasks = p.Completed_Plan_Item__c ?? 0;
+            const totalTasks = p.Total_Plan_Item__c ?? 0;
+
+            return {
+              ...p,
+              OwnerName: p.Owner?.Name,
+              Completed: p.Status__c === 'Completed',
+              CompletedTasksString: `${completedTasks} of ${totalTasks}`,
+              TaskListLabel: `View Task List (${totalTasks})`,
+              tasksOpen: false
+            };
+          });
+      } catch (e) {
+        console.error('getPlans error:', e?.body ?? e);
+      }
     }
 
     get numberOfPlans() {
@@ -80,6 +45,9 @@ export default class ActionPlanPanel extends LightningElement {
               ? { ...plan, tasksOpen: !plan.tasksOpen }
               : plan
       );
+    }
+    get test(){
+      return true;
     }
 
 }
