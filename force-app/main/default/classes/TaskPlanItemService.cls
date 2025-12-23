@@ -21,15 +21,14 @@ public with sharing class TaskPlanItemService {
         system.debug('syncPlanItemStatus');
         system.debug(newTasks);
         for(Task t : newTasks){
-            //t.addError('יצירת ה-Plan נכשלה. אנא פנו למנהל מערכת.');
             if(t.Plan_Item__c != null && (oldTasks == null || t.status != oldTasks.get(t.Id).status)) {
                 Plan_Item__c pi = new Plan_Item__c(Id = t.Plan_Item__c, Task_Status__c = t.Status);
-                planItemsToUpdate.add(pi);
                 if(t.Status == 'Completed'){
                     completedTasks.add(t);
                     oldCompletedTasks.put(t.Id, oldTasks != null ? oldTasks.get(t.Id) : null);
-                    system.debug(t.Id);
+                    pi.Has_Been_Completed__c = true; 
                 }
+                planItemsToUpdate.add(pi);
             }
         }
         
@@ -52,12 +51,12 @@ public with sharing class TaskPlanItemService {
             }
         }
 
-        List<Plan_Item__c> dependentPlanItems = [SELECT Id, Previous_Plan_Item__c, Task_Id__c FROM Plan_Item__c WHERE Previous_Plan_Item__c IN :planItemsIds];
+        List<Plan_Item__c> dependentPlanItems = [SELECT Id, Previous_Plan_Item__c, Task_Id__c, Has_Been_Completed__c FROM Plan_Item__c WHERE Previous_Plan_Item__c IN :planItemsIds]; ///////
         List<Task> tasksToUpdate = new List<Task>();
 
         for(Plan_Item__c pi : dependentPlanItems) {
             if(pi.Task_Id__c != null) {
-                Task t = new Task(Id = pi.Task_Id__c, Status = taskStatusMap.get(pi.Previous_Plan_Item__c));
+                Task t = new Task(Id = pi.Task_Id__c, Status = pi.Has_Been_Completed__c ? 'Reopen' : 'Open');
                 tasksToUpdate.add(t);
             }
         }
