@@ -1,7 +1,6 @@
 import { LightningElement, api, track, wire } from 'lwc';
-import { gql, graphql } from 'lightning/uiGraphQLApi';
 import getPlans from '@salesforce/apex/ActionPlanPanelController.getPlans';
-
+import getPlanById from '@salesforce/apex/ActionPlanPanelController.getPlanById';
 export default class ActionPlanPanel extends LightningElement {
     activeSections = [];
     @track plans = [];    
@@ -49,5 +48,34 @@ export default class ActionPlanPanel extends LightningElement {
     get test(){
       return true;
     }
+
+    async handleTaskStatusChange(event) {
+      const planId = event.detail?.planId;
+      if (!planId) return;
+
+      try {
+        const p = await getPlanById({ planId });
+
+        const completedTasks = p.Completed_Plan_Item__c ?? 0;
+        const totalTasks = p.Total_Plan_Item__c ?? 0;
+
+        const refreshed = {
+          ...p,
+          OwnerName: p.Owner?.Name,
+          Completed: p.Status__c === 'Completed',
+          CompletedTasksString: `${completedTasks} of ${totalTasks}`,
+          TaskListLabel: `View Task List (${totalTasks})`
+        };
+
+        this.plans = this.plans.map(existing =>
+          existing.Id === planId
+            ? { ...refreshed, tasksOpen: existing.tasksOpen } // שומרת אם הטבלה פתוחה
+            : existing
+        );
+      } catch (e) {
+        console.error('getPlanById error:', e?.body ?? e);
+      }
+    }
+
 
 }

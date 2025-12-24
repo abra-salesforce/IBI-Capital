@@ -38,13 +38,13 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="slds-truncate slds-text-title_bold" title={t.Date}>
-                                    {t.Date}
+                                <div class="slds-truncate slds-text-title_bold" title={t.ActivityDate}>
+                                    {t.ActivityDate}
                                 </div>
                             </td>
                             <td>
-                                <div class="slds-truncate slds-text-title_bold" title={t.AssignedTo}>
-                                    {t.AssignedTo}
+                                <div class="slds-truncate slds-text-title_bold" title={t.Owner.Name}>
+                                    {t.Owner.Name}
                                 </div>
                             </td>
                             <td>
@@ -57,7 +57,8 @@
                                     type="checkbox"
                                     data-id={t.Id}
                                     checked={t.Completed}
-                                    onclick={handleCheckCompleted}
+                                    onchange={handleCheckCompleted}
+                                    onclick={handleCheckboxClick}
                                     label={t.checkboxLabel}>
                                 </lightning-input>
                             </td>

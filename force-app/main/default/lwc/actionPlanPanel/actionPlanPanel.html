@@ -25,7 +25,7 @@
                             <span class="slds-badge slds-m-left_small">{plan.Status__c}</span>
                         </div>
 
-                        <template lwc:if={test}>
+                        <template lwc:if={plan.Completed}>
                             <span class="slds-m-top_small slds-m-right_small">
                                 <lightning-icon icon-name="utility:check" size="small" variant="success"></lightning-icon>
                             </span>
@@ -33,7 +33,7 @@
                         <template lwc:else>
                             <div class="lds-col slds-size_x-small slds-p-left_small">
                                 <span class="slds-m-bottom_medium">{plan.Progress_Formula__c}%</span>
-                                <lightning-progress-bar value={plan.Progress_Formula__c} size="medium"></lightning-progress-bar>
+                                <lightning-progress-bar value={plan.Progress_Formula__c} size="medium" variant="circular"></lightning-progress-bar>
                                 <span class="slds-m-top_medium">1/4</span>
                             </div>
                         </template>
@@ -70,7 +70,7 @@
 
                     <template if:true={plan.tasksOpen}>
                         <div class="slds-m-top_small">
-                            <c-action-plan-task-table plan={plan}></c-action-plan-task-table>
+                            <c-action-plan-task-table plan={plan} ontaskstatuschange={handleTaskStatusChange}></c-action-plan-task-table>
                         </div>
                     </template>
                 </div>

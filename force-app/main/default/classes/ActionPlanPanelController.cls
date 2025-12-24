@@ -19,9 +19,44 @@ public with sharing class ActionPlanPanelController {
 
         return Database.query(soql);
     }
+
+    @AuraEnabled
+    public static List<Task> getPlanTasks(Id planId) {
+        List<Plan_Item__c> items = [
+        SELECT Task_ID__c
+        FROM Plan_Item__c
+        WHERE Plan__c = :planId
+        ];
+
+        Set<Id> taskIds = new Set<Id>();
+        for (Plan_Item__c pi : items) {
+        if (pi.Task_ID__c != null) taskIds.add((Id)pi.Task_ID__c);
+        }
+        if (taskIds.isEmpty()) return new List<Task>();
+
+        return [
+        SELECT Id, Subject, Status, Description, ActivityDate, OwnerId, Owner.Name
+        FROM Task
+        WHERE Id IN :taskIds order by Plan_Item__r.Step_Order__c
+        ];
+    }
+
     @AuraEnabled
     public static void updateTaskStatus(Id taskId, String status) {
         Task task = new Task (Id = taskId, Status = status);
         update task;
     }
+
+    @AuraEnabled(cacheable=false)
+    public static Plan__c getPlanById(Id planId) {
+        return [
+            SELECT Id, Name, Status__c, Progress_Formula__c, Start_Date__c,
+                Completed_Plan_Item__c, Total_Plan_Item__c,
+                Owner.Name
+            FROM Plan__c
+            WHERE Id = :planId
+            LIMIT 1
+        ];
+    }
+
 }
