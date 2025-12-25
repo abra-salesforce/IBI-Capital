@@ -22,7 +22,7 @@
                             <div class="slds-truncate" title="Assigned to">Status</div>
                         </th>
                         <th scope="col">
-                            <div class="slds-hide" title="Completed">Completed</div>
+                            <div class="slds-truncate" title="Completed">Completed</div>
                         </th>
                     </tr>
                 </thead>
@@ -53,15 +53,31 @@
                                 </div>
                             </td>
                             <td>
-                                <lightning-input
-                                    type="checkbox"
-                                    data-id={t.Id}
-                                    checked={t.Completed}
-                                    onchange={handleCheckCompleted}
-                                    onclick={handleCheckboxClick}
-                                    label={t.checkboxLabel}>
-                                </lightning-input>
+                                <div class="slds-grid slds-grid_vertical-align-center">
+                                    <lightning-button-icon
+                                        data-id={t.Id}
+                                        icon-name={t.iconName}
+                                        variant="border-filled"
+                                        size="small"
+                                        alternative-text={t.checkboxLabel}
+                                        onclick={handleStatusClick}>
+                                    </lightning-button-icon>
+                                    <!--<lightning-input
+                                        type="checkbox"
+                                        data-id={t.Id}
+                                        checked={t.Completed}
+                                        onchange={handleCheckCompleted}
+                                        onclick={handleCheckboxClick}
+                                        label={t.checkboxLabel}
+                                        variant="label-hidden">
+                                    </lightning-input>
+
+                                    <span class="slds-truncate slds-text-title_bold slds-m-left_x-small">
+                                        {t.checkboxLabel}
+                                    </span>-->
+                                </div>
                             </td>
+
                         </tr>
                     </template>
                 </tbody>

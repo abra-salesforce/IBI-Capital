@@ -14,19 +14,7 @@ export default class ActionPlanPanel extends LightningElement {
     async loadPlans() {
       try {
         const result = await getPlans({ recordId: this.recordId, apiFieldName: this.planLookupFieldApiName });
-        this.plans = (result || []).map(p => {
-            const completedTasks = p.Completed_Plan_Item__c ?? 0;
-            const totalTasks = p.Total_Plan_Item__c ?? 0;
-
-            return {
-              ...p,
-              OwnerName: p.Owner?.Name,
-              Completed: p.Status__c === 'Completed',
-              CompletedTasksString: `${completedTasks} of ${totalTasks}`,
-              TaskListLabel: `View Task List (${totalTasks})`,
-              tasksOpen: false
-            };
-          });
+        this.plans = (result || []).map(p => this.buildPlan(p));
       } catch (e) {
         console.error('getPlans error:', e?.body ?? e);
       }
@@ -45,9 +33,28 @@ export default class ActionPlanPanel extends LightningElement {
               : plan
       );
     }
-    get test(){
-      return true;
+
+    buildPlan(p, existingPlan) {
+      const completedTasks = p.Completed_Plan_Item__c ?? 0;
+      const totalTasks = p.Total_Plan_Item__c ?? 0;
+
+      return {
+          ...p,
+          OwnerName: p.Owner?.Name,
+          Completed: p.Status__c === 'Completed',
+          CompletedTasksString: `${completedTasks} of ${totalTasks}`,
+          TaskListLabel: `View Task List (${totalTasks})`,
+          badgeClass:
+              'slds-badge slds-m-left_small ' +
+              (p.Status__c === 'Completed'
+                  ? 'slds-theme_success'
+                  : p.Status__c === 'In Progress'
+                  ? 'slds-theme_info'
+                  : ''),
+          tasksOpen: existingPlan?.tasksOpen ?? false
+      };
     }
+
 
     async handleTaskStatusChange(event) {
       const planId = event.detail?.planId;
@@ -55,21 +62,9 @@ export default class ActionPlanPanel extends LightningElement {
 
       try {
         const p = await getPlanById({ planId });
-
-        const completedTasks = p.Completed_Plan_Item__c ?? 0;
-        const totalTasks = p.Total_Plan_Item__c ?? 0;
-
-        const refreshed = {
-          ...p,
-          OwnerName: p.Owner?.Name,
-          Completed: p.Status__c === 'Completed',
-          CompletedTasksString: `${completedTasks} of ${totalTasks}`,
-          TaskListLabel: `View Task List (${totalTasks})`
-        };
-
         this.plans = this.plans.map(existing =>
           existing.Id === planId
-            ? { ...refreshed, tasksOpen: existing.tasksOpen } // שומרת אם הטבלה פתוחה
+            ? this.buildPlan(p, existing)   // משתמשת בתצוגה הישנה רק בשביל tasksOpen
             : existing
         );
       } catch (e) {

@@ -1,7 +1,7 @@
 import { LightningElement, api, wire, track } from 'lwc';
 import updateStatus from '@salesforce/apex/ActionPlanPanelController.updateTaskStatus';
 import getPlanTasks from '@salesforce/apex/ActionPlanPanelController.getPlanTasks';
-
+import LightningConfirm from 'lightning/confirm';
 
 export default class ActionPlanTaskTable extends LightningElement {
     @api plan;
@@ -30,6 +30,7 @@ export default class ActionPlanTaskTable extends LightningElement {
             ...t,
             Completed: status === 'Completed',
             checkboxLabel: status === 'Completed' ? 'Completed' : 'Mark as completed',
+            iconName: status === 'Completed' ? 'utility:check' : null,
             rowClass: `slds-hint-parent task-row ${this.getRowClassByStatus(status)}`
           };
         });
@@ -66,11 +67,22 @@ export default class ActionPlanTaskTable extends LightningElement {
       event.stopPropagation();
     }
 
-    async handleCheckCompleted(event) {
+    /*async handleCheckCompleted(event) {
       event.stopPropagation();
       const taskId = event.currentTarget.dataset.id;
       const isChecked = event.target.checked;
       const taskStatus = isChecked ? 'Completed' : 'Reopen';
+
+      if(!isChecked) {
+          const confirmed = await LightningConfirm.open({
+          message: 'האם אתה בטוח שתרצה לשנות סטטוס?',
+          theme: 'warning',
+        });
+        if (!confirmed) {
+          await this.loadTasks();
+          return;
+        }
+      }
 
       try {
         await updateStatus({ taskId: taskId, status: taskStatus });
@@ -84,5 +96,46 @@ export default class ActionPlanTaskTable extends LightningElement {
     } catch (e) {
         console.error(e?.body?.message || e);
       }
+    }*/
+
+    async handleStatusClick(event) {
+        event.stopPropagation();
+
+        const taskId = event.currentTarget.dataset.id;
+        const task = this.tasks.find(t => t.Id === taskId);
+        if (!task) return;
+
+        const isCurrentlyCompleted = task.Completed;
+        const newStatus = isCurrentlyCompleted ? 'Reopen' : 'Completed';
+
+        // אם מורידים מ-Completed → Reopen, עדיין נעשה confirm כמו קודם
+        if (isCurrentlyCompleted) {
+            const confirmed = await LightningConfirm.open({
+                message: 'האם אתה בטוח שתרצה לשנות סטטוס?',
+                theme: 'warning'
+            });
+            if (!confirmed) {
+                await this.loadTasks();
+                return;
+            }
+        }
+
+        try {
+            await updateStatus({ taskId, status: newStatus });
+            await this.loadTasks();
+
+            this.dispatchEvent(new CustomEvent('taskstatuschange', {
+                detail: { planId: this.plan?.Id },
+                bubbles: true,
+                composed: true
+            }));
+        } catch (e) {
+            console.error(e?.body?.message || e);
+        }
     }
+
+
+
+      
+
 }
