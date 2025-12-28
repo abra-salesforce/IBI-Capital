@@ -112,7 +112,7 @@
 
                     <template if:true={plan.tasksOpen}>
                         <div class="slds-m-top_small">
-                            <c-action-plan-task-table plan={plan} ontaskstatuschange={handleTaskStatusChange}></c-action-plan-task-table>
+                            <c-action-plan-task-table plan={plan} ontaskstatuschange={handleTaskStatusChange} onsaved={handleTaskSaved}></c-action-plan-task-table>
                         </div>
                     </template>
                 </div>

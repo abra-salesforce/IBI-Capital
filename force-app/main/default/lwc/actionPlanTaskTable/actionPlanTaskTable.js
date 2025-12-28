@@ -31,6 +31,7 @@ export default class ActionPlanTaskTable extends LightningElement {
             Completed: status === 'Completed',
             checkboxLabel: status === 'Completed' ? 'Completed' : 'Mark as completed',
             iconName: status === 'Completed' ? 'utility:check' : null,
+            disabled: status === 'Waiting in Dependency' ? true : false,
             rowClass: `slds-hint-parent task-row ${this.getRowClassByStatus(status)}`
           };
         });
@@ -67,37 +68,6 @@ export default class ActionPlanTaskTable extends LightningElement {
       event.stopPropagation();
     }
 
-    /*async handleCheckCompleted(event) {
-      event.stopPropagation();
-      const taskId = event.currentTarget.dataset.id;
-      const isChecked = event.target.checked;
-      const taskStatus = isChecked ? 'Completed' : 'Reopen';
-
-      if(!isChecked) {
-          const confirmed = await LightningConfirm.open({
-          message: 'האם אתה בטוח שתרצה לשנות סטטוס?',
-          theme: 'warning',
-        });
-        if (!confirmed) {
-          await this.loadTasks();
-          return;
-        }
-      }
-
-      try {
-        await updateStatus({ taskId: taskId, status: taskStatus });
-        await this.loadTasks();
-
-        this.dispatchEvent(new CustomEvent('taskstatuschange', {
-          detail: { planId: this.plan?.Id },
-          bubbles: true,
-          composed: true
-        }));
-    } catch (e) {
-        console.error(e?.body?.message || e);
-      }
-    }*/
-
     async handleStatusClick(event) {
         event.stopPropagation();
 
@@ -108,7 +78,6 @@ export default class ActionPlanTaskTable extends LightningElement {
         const isCurrentlyCompleted = task.Completed;
         const newStatus = isCurrentlyCompleted ? 'Reopen' : 'Completed';
 
-        // אם מורידים מ-Completed → Reopen, עדיין נעשה confirm כמו קודם
         if (isCurrentlyCompleted) {
             const confirmed = await LightningConfirm.open({
                 message: 'האם אתה בטוח שתרצה לשנות סטטוס?',
@@ -133,6 +102,11 @@ export default class ActionPlanTaskTable extends LightningElement {
             console.error(e?.body?.message || e);
         }
     }
+
+    handleTaskSaved() {
+        this.selectedTask = null;
+    }
+
 
 
 

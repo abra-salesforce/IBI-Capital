@@ -64,4 +64,14 @@ public with sharing class ActionPlanPanelController {
         List<Plan__c> res = Database.query(soql);
         return res.isEmpty() ? null : res[0];
     }
+
+    @AuraEnabled
+    public static void updateTaskDescription(Id taskId, String description){
+        Task task = new Task (Id = taskId, Description = description);
+        try {
+            update task;
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
 }

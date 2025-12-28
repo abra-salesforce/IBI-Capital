@@ -60,6 +60,7 @@
                                         variant="border-filled"
                                         size="small"
                                         alternative-text={t.checkboxLabel}
+                                        disabled={t.disabled}
                                         onclick={handleStatusClick}>
                                     </lightning-button-icon>
                                     <!--<lightning-input
@@ -87,7 +88,8 @@
         <template lwc:if={openModal}>
             <c-task-details-modal
                 task={selectedTask}
-                onclose={handleCloseModal}>
+                onclose={handleCloseModal}
+                onsaved={handleTaskSaved}>
             </c-task-details-modal>
         </template>
 

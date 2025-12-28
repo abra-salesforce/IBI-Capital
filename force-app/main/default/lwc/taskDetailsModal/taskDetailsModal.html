@@ -15,7 +15,7 @@
                             <span class="slds-m-left_x-small">Assigned To</span>
                         </div>
                         <div class="slds-text-body_small">
-                            <span>{task.AssignedTo}</span>
+                            <span>{task.Owner.Name}</span>
                         </div>
                     </div>
 
@@ -25,7 +25,7 @@
                             <span class="slds-m-left_x-small">Due Date</span>
                         </div>
                         <div class="slds-text-body_small">
-                            <span>{task.Date}</span>
+                            <span>{task.ActivityDate}</span>
                         </div>
                     </div>
                 </div>
@@ -37,7 +37,14 @@
                         class="slds-m-top_medium">
                     </lightning-textarea>
                 </div>
+
+                <template lwc:if={errorMessage}>
+                    <div class="slds-text-color_error slds-m-top_small">
+                        {errorMessage}
+                    </div>
+                </template>
             </div>
+
 
             <footer class="slds-modal__footer">
                 <lightning-button

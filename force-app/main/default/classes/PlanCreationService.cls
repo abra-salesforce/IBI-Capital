@@ -16,7 +16,7 @@ public without sharing class PlanCreationService {
     @InvocableMethod (label='Create Plan and Plan Items')
     public static void createPlan(List<PlanInput> inputs){
         PlanInput input = inputs[0];
-        Plan_Template__c planTemplate = [SELECT Id, Name, Description__c, Default_Owner_Type__c, Owner_API_Name__c, Owner_Queue__c, Owner_User__c,
+        Plan_Template__c planTemplate = [SELECT Id, Name, Description__c, Default_Owner_Type__c, Owner_API_Name__c, Owner_Queue__c, Owner_User__c, Start_Time_Duration__c,
                                         (SELECT Id, Name, Plan_Template_If_Completed__c, Step_Order__c, Is_Mandatory__c, Instructions__c, Duration_Days__c, Previous_Plan_Template_Item__c, Default_Owner_Type__c, Owner_API_Name__c, Owner_Queue__c, Owner_User__c FROM Plan_Template_Items__r order by Step_Order__c) FROM Plan_Template__c WHERE Id = :input.planTemplateId LIMIT 1];
         
 		List<Plan_Template_Item__c> templateItems = planTemplate.Plan_Template_Items__r;
@@ -41,9 +41,16 @@ public without sharing class PlanCreationService {
 
 		Id planAssignedTo = getOwner(planTemplate.Default_Owner_Type__c, record, planTemplate);
 
+
+
 		Plan__c plan = new Plan__c (Name = planTemplate.Name,
 									Plan_Template__c = planTemplate.Id,
 									Notes__c = planTemplate.Description__c);
+		if(planTemplate.Start_Time_Duration__c != null) {
+			Date baseDatePlan = (input.startDate != null) ? input.startDate : Date.today();
+			Integer durationDaysPlan = Plan_Template__c.Start_Time_Duration__c != null ? Integer.valueOf(planTemplate.Start_Time_Duration__c) : 0;
+			plan.Start_Date__c = baseDatePlan.addDays(durationDaysPlan);
+		}
         plan.put(input.lookupFieldApiName, input.recordId);
 		plan.OwnerId = planAssignedTo;
 		
@@ -103,13 +110,27 @@ public without sharing class PlanCreationService {
 		insert tasks;
     }
 
-	public static Id getOwner(String type, Sobject record, Sobject template){
+	public class PlanCreationException extends Exception {}
+
+	private static Id getOwner(String type, Sobject record, Sobject template){
 		Id ownerId = type == 'User' ? (Id)template.get('Owner_User__c') : type == 'Queue' ? (Id)template.get('Owner_Queue__c') : null;
 		if (ownerId == null) {
 			String ownerPath = (String)template.get('Owner_API_Name__c');
 			Object res = getByPath(record, ownerPath);
 			ownerId = (Id)res;
 		}
+
+		/*if (ownerId == null) {
+			String templateName = (String)template.get('Name');
+			String ownerApiName = (String)template.get('Owner_API_Name__c');
+
+			throw new PlanCreationException(
+				'לא ניתן לקבוע Owner לתכנית/משימה מתבנית "' + templateName + '". ' +
+				'בדוק את הגדרות הבעלות בתבנית (Default Owner / Queue / Owner_API_Name__c'
+				+ (String.isNotBlank(ownerApiName) ? ' = ' + ownerApiName : '')
+				+ ') ואת הערך בשדה על הרשומה.'
+			);
+		}*/
 
 		return ownerId;
 	}

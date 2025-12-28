@@ -1,6 +1,7 @@
 import { LightningElement, api, track, wire } from 'lwc';
 import getPlans from '@salesforce/apex/ActionPlanPanelController.getPlans';
 import getPlanById from '@salesforce/apex/ActionPlanPanelController.getPlanById';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 export default class ActionPlanPanel extends LightningElement {
     activeSections = [];
     @track plans = [];    
@@ -64,12 +65,21 @@ export default class ActionPlanPanel extends LightningElement {
         const p = await getPlanById({ planId });
         this.plans = this.plans.map(existing =>
           existing.Id === planId
-            ? this.buildPlan(p, existing)   // משתמשת בתצוגה הישנה רק בשביל tasksOpen
+            ? this.buildPlan(p, existing)
             : existing
         );
       } catch (e) {
         console.error('getPlanById error:', e?.body ?? e);
       }
+    }
+
+    handleTaskSaved() {
+        this.dispatchEvent(
+            new ShowToastEvent({
+                message: 'המשימה עודכנה בהצלחה',
+                variant: 'success'
+            })
+        );
     }
 
 
