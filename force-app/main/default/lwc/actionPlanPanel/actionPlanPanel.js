@@ -28,16 +28,27 @@ export default class ActionPlanPanel extends LightningElement {
     handleToggleTasks(event) {
       const planId = event.currentTarget.dataset.id;
 
-      this.plans = this.plans.map(plan =>
-          plan.Id === planId
-              ? { ...plan, tasksOpen: !plan.tasksOpen }
-              : plan
-      );
+      this.plans = this.plans.map(plan => {
+          if (plan.Id !== planId) {
+              return plan;
+          }
+
+          const isOpen = !plan.tasksOpen;
+
+          return {
+              ...plan,
+              tasksOpen: isOpen,
+              iconName: isOpen
+                  ? 'utility:chevrondown'
+                  : 'utility:chevronright'
+          };
+      });
     }
 
     buildPlan(p, existingPlan) {
       const completedTasks = p.Completed_Plan_Item__c ?? 0;
       const totalTasks = p.Total_Plan_Item__c ?? 0;
+      const tasksOpen = existingPlan?.tasksOpen ?? false;
 
       return {
           ...p,
@@ -52,7 +63,8 @@ export default class ActionPlanPanel extends LightningElement {
                   : p.Status__c === 'In Progress'
                   ? 'slds-theme_info'
                   : ''),
-          tasksOpen: existingPlan?.tasksOpen ?? false
+          tasksOpen: existingPlan?.tasksOpen ?? false,
+          iconName: tasksOpen ? 'utility:chevrondown' : 'utility:chevronright'
       };
     }
 

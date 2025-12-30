@@ -22,7 +22,7 @@
                             <div class="slds-truncate" title="Assigned to">Status</div>
                         </th>
                         <th scope="col">
-                            <div class="slds-truncate" title="Completed">Completed</div>
+                            <div class="slds-truncate slds-text-align_center" title="Completed">Completed</div>
                         </th>
                     </tr>
                 </thead>
@@ -34,12 +34,24 @@
                             onclick={handleSelectedRow}>
                             <td>
                                 <div class="slds-truncate slds-text-title_bold" title={t.Subject}>
-                                    {t.Subject}
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                        <lightning-helptext content={t.Plan_Item__r.Instructions__c}></lightning-helptext>
+
+                                        <span class="slds-truncate slds-m-left_x-small">
+                                            {t.Subject}
+                                        </span>
+                                    </div>
                                 </div>
                             </td>
+
                             <td>
                                 <div class="slds-truncate slds-text-title_bold" title={t.ActivityDate}>
-                                    {t.ActivityDate}
+                                    <lightning-formatted-date-time
+                                        value={t.ActivityDate}
+                                        year="numeric"
+                                        month="2-digit"
+                                        day="2-digit">
+                                    </lightning-formatted-date-time>
                                 </div>
                             </td>
                             <td>
@@ -53,7 +65,7 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="slds-grid slds-grid_vertical-align-center">
+                                <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-center">
                                     <lightning-button-icon
                                         data-id={t.Id}
                                         icon-name={t.iconName}

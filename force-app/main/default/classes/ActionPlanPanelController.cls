@@ -43,7 +43,7 @@ public with sharing class ActionPlanPanelController {
         if (taskIds.isEmpty()) return new List<Task>();
 
         return [
-        SELECT Id, Subject, Status, Description, ActivityDate, OwnerId, Owner.Name
+        SELECT Id, Subject, Status, Description, ActivityDate, OwnerId, Owner.Name, Plan_Item__r.Instructions__c
         FROM Task
         WHERE Id IN :taskIds order by Plan_Item__r.Step_Order__c
         ];

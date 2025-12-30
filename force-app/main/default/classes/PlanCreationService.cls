@@ -45,12 +45,8 @@ public without sharing class PlanCreationService {
 
 		Plan__c plan = new Plan__c (Name = planTemplate.Name,
 									Plan_Template__c = planTemplate.Id,
+									Start_Date__c = Date.today(),
 									Notes__c = planTemplate.Description__c);
-		if(planTemplate.Start_Time_Duration__c != null) {
-			Date baseDatePlan = (input.startDate != null) ? input.startDate : Date.today();
-			Integer durationDaysPlan = Plan_Template__c.Start_Time_Duration__c != null ? Integer.valueOf(planTemplate.Start_Time_Duration__c) : 0;
-			plan.Start_Date__c = baseDatePlan.addDays(durationDaysPlan);
-		}
         plan.put(input.lookupFieldApiName, input.recordId);
 		plan.OwnerId = planAssignedTo;
 		

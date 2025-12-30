@@ -33,7 +33,7 @@
                     </div>
 
                     <div class="slds-grid slds-wrap slds-text-body_small slds-m-top_small">
-                        <div class="slds-grid slds-grid_vertical slds-m-right_large">
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
                             <div class="slds-text-title_bold slds-m-bottom_xx-small">
                                 Owner
                             </div>
@@ -43,7 +43,7 @@
                             </div>
                         </div>
 
-                        <div class="slds-grid slds-grid_vertical slds-m-right_large">
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
                             <div class="slds-text-title_bold slds-m-bottom_xx-small">
                                 Start Date
                             </div>
@@ -59,7 +59,7 @@
                             </div>
                         </div>
 
-                        <div class="slds-grid slds-grid_vertical slds-m-right_large">
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
                             <div class="slds-text-title_bold slds-m-bottom_xx-small">
                                 All Tasks
                             </div>
@@ -71,7 +71,7 @@
                             </div>
                         </div>
 
-                        <div class="slds-grid slds-grid_vertical">
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
                             <div class="slds-text-title_bold slds-m-bottom_xx-small">
                                 Mandatory Tasks
                             </div>
@@ -105,7 +105,7 @@
                             data-id={plan.Id}
                             data-open={plan.tasksOpen}
                             onclick={handleToggleTasks}>
-                        <lightning-icon icon-name="utility:chevronright" size="xx-small" class="slds-m-right_x-small"
+                        <lightning-icon icon-name={plan.iconName} size="xx-small" class="slds-m-right_x-small"
                                         alternative-text="Toggle Tasks"></lightning-icon>
                         <span>{plan.TaskListLabel}</span>
                     </button>

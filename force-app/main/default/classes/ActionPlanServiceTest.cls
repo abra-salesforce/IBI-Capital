@@ -130,4 +130,18 @@ public with sharing class ActionPlanServiceTest {
         Task childAfter = [SELECT Id, Status FROM Task WHERE Id = :pi2.Task_Id__c LIMIT 1];
         Assert.isTrue(childAfter.Status == 'Waiting in Dependency');
     }
+
+    //ActionPlanPanelController
+    @IsTest
+    static void actionPlanPanelControllerTest() {
+        Id planId = createPlanForSetupData();
+        Case c = [SELECT Id FROM Case WHERE Subject = 'Case For Plan' LIMIT 1];
+        ActionPlanPanelController.getPlans(c.Id, 'Case__c');
+        ActionPlanPanelController.getPlanTasks(planId);
+        Task t = [SELECT Id, Status FROM Task LIMIT 1];
+        ActionPlanPanelController.updateTaskStatus(t.Id, 'Completed');
+        ActionPlanPanelController.getPlanById(planId);
+        ActionPlanPanelController.updateTaskDescription(t.Id, 'test');
+    }
+
 }
