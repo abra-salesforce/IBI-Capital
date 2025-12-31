@@ -140,7 +140,6 @@ h1{
   margin-bottom: 7px;
 }*/
 
-.progress-bar {
-    display: flex;
-    width: 200px;
+.ltr {
+  direction: ltr;
 }

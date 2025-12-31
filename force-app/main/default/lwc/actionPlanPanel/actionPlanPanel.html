@@ -1,122 +1,124 @@
 <template>
-    <div class="slds-page-header slds-p-around_small">
-        <div class="slds-media slds-media_center">
-            <div class="slds-media__figure">
-                <lightning-icon icon-name="standard:work_plan_template_entry" alternative-text="action plan" size="medium"></lightning-icon>
-            </div>
-            <div class="slds-media__body">
-                <h1 class="slds-text-heading_medium">Action Plans ({numberOfPlans})</h1>
+    <div class="ltr">
+        <div class="slds-page-header slds-p-around_small">
+            <div class="slds-media slds-media_center">
+                <div class="slds-media__figure">
+                    <lightning-icon icon-name="standard:work_plan_template_entry" alternative-text="action plan" size="medium"></lightning-icon>
+                </div>
+                <div class="slds-media__body">
+                    <h1 class="slds-text-heading_medium">Action Plans ({numberOfPlans})</h1>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div>
-        <template for:each={plans} for:item="plan">
-            <div key={plan.Id} class="slds-card slds-m-bottom_small">
-                <div class="slds-p-around_small"
-                    data-id={plan.Id}
-                    data-open={plan.isOpen}>
+        <div>
+            <template for:each={plans} for:item="plan">
+                <div key={plan.Id} class="slds-card slds-m-bottom_small">
+                    <div class="slds-p-around_small"
+                        data-id={plan.Id}
+                        data-open={plan.isOpen}>
 
-                    <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
-                        <div class="slds-truncate">
-                            <span class="slds-text-heading_small slds-truncate" title={plan.Name}>
-                                {plan.Name}
-                            </span>
-                            <span class={plan.badgeClass}>{plan.Status__c}</span>
+                        <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
+                            <div class="slds-truncate">
+                                <span class="slds-text-heading_small slds-truncate" title={plan.Name}>
+                                    {plan.Name}
+                                </span>
+                                <span class={plan.badgeClass}>{plan.Status__c}</span>
+                            </div>
+
+                            <template lwc:if={plan.Completed}>
+                                <span class="slds-m-top_small slds-m-right_small">
+                                    <lightning-icon icon-name="utility:check" size="small" variant="success"></lightning-icon>
+                                </span>
+                            </template>
                         </div>
 
-                        <template lwc:if={plan.Completed}>
-                            <span class="slds-m-top_small slds-m-right_small">
-                                <lightning-icon icon-name="utility:check" size="small" variant="success"></lightning-icon>
-                            </span>
+                        <div class="slds-grid slds-wrap slds-text-body_small slds-m-top_small">
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
+                                <div class="slds-text-title_bold slds-m-bottom_xx-small">
+                                    Owner
+                                </div>
+                                <div class="slds-grid slds-grid_vertical-align-center">
+                                    <lightning-icon icon-name="utility:user" alternative-text="User" size="x-small"></lightning-icon>
+                                    <span class="slds-m-left_x-small">{plan.OwnerName}</span>
+                                </div>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
+                                <div class="slds-text-title_bold slds-m-bottom_xx-small">
+                                    Start Date
+                                </div>
+                                <div class="slds-grid slds-grid_vertical-align-center">
+                                    <lightning-icon icon-name="utility:event" alternative-text="Start Date" size="x-small"></lightning-icon>
+                                    <lightning-formatted-date-time
+                                        class="slds-m-left_x-small"
+                                        value={plan.Start_Date__c}
+                                        year="numeric"
+                                        month="2-digit"
+                                        day="2-digit">
+                                    </lightning-formatted-date-time>
+                                </div>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
+                                <div class="slds-text-title_bold slds-m-bottom_xx-small">
+                                    All Tasks
+                                </div>
+                                <div class="slds-grid slds-grid_vertical-align-center">
+                                    <lightning-icon icon-name="utility:retail_execution" alternative-text="All Tasks" size="x-small"></lightning-icon>
+                                    <span class="slds-m-left_x-small">
+                                        {plan.Completed_Plan_Item__c}/{plan.Total_Plan_Item__c}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
+                                <div class="slds-text-title_bold slds-m-bottom_xx-small">
+                                    Mandatory Tasks
+                                </div>
+
+                                <div class="slds-m-vertical_xx-small">
+                                    <lightning-progress-bar
+                                        value={plan.Progress_Mandatory_Plan_FormulaItem__c}
+                                        size="medium"
+                                        class="progress-bar"
+                                        variant="circular">
+                                    </lightning-progress-bar>
+                                </div>
+
+                                <div class="slds-grid slds-grid_align-spread slds-text-body_small slds-text-color_weak">
+                                    <span>{plan.Progress_Mandatory_Plan_FormulaItem__c}%</span>
+                                    <span>{plan.Completed_Mandatory_Plan_Item__c}/{plan.Total_Mandatory_Plan_Item__c}</span>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="slds-border_bottom"></div>
+
+                    <div class="slds-p-around_small">
+                        <button class="slds-button slds-button_reset slds-text-title_bold slds-grid slds-grid_vertical-align-center"
+                                data-id={plan.Id}
+                                data-open={plan.tasksOpen}
+                                onclick={handleToggleTasks}>
+                            <lightning-icon icon-name={plan.iconName} size="xx-small" class="slds-m-right_x-small"
+                                            alternative-text="Toggle Tasks"></lightning-icon>
+                            <span>{plan.TaskListLabel}</span>
+                        </button>
+
+                        <template if:true={plan.tasksOpen}>
+                            <div class="slds-m-top_small">
+                                <c-action-plan-task-table plan={plan} ontaskstatuschange={handleTaskStatusChange} onsaved={handleTaskSaved}></c-action-plan-task-table>
+                            </div>
                         </template>
                     </div>
-
-                    <div class="slds-grid slds-wrap slds-text-body_small slds-m-top_small">
-                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
-                            <div class="slds-text-title_bold slds-m-bottom_xx-small">
-                                Owner
-                            </div>
-                            <div class="slds-grid slds-grid_vertical-align-center">
-                                <lightning-icon icon-name="utility:user" alternative-text="User" size="x-small"></lightning-icon>
-                                <span class="slds-m-left_x-small">{plan.OwnerName}</span>
-                            </div>
-                        </div>
-
-                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
-                            <div class="slds-text-title_bold slds-m-bottom_xx-small">
-                                Start Date
-                            </div>
-                            <div class="slds-grid slds-grid_vertical-align-center">
-                                <lightning-icon icon-name="utility:event" alternative-text="Start Date" size="x-small"></lightning-icon>
-                                <lightning-formatted-date-time
-                                    class="slds-m-left_x-small"
-                                    value={plan.Start_Date__c}
-                                    year="numeric"
-                                    month="2-digit"
-                                    day="2-digit">
-                                </lightning-formatted-date-time>
-                            </div>
-                        </div>
-
-                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
-                            <div class="slds-text-title_bold slds-m-bottom_xx-small">
-                                All Tasks
-                            </div>
-                            <div class="slds-grid slds-grid_vertical-align-center">
-                                <lightning-icon icon-name="utility:retail_execution" alternative-text="All Tasks" size="x-small"></lightning-icon>
-                                <span class="slds-m-left_x-small">
-                                    {plan.Completed_Plan_Item__c}/{plan.Total_Plan_Item__c}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
-                            <div class="slds-text-title_bold slds-m-bottom_xx-small">
-                                Mandatory Tasks
-                            </div>
-
-                            <div class="slds-m-vertical_xx-small">
-                                <lightning-progress-bar
-                                    value={plan.Progress_Mandatory_Plan_FormulaItem__c}
-                                    size="medium"
-                                    class="progress-bar"
-                                    variant="circular">
-                                </lightning-progress-bar>
-                            </div>
-
-                            <div class="slds-grid slds-grid_align-spread slds-text-body_small slds-text-color_weak">
-                                <span>{plan.Progress_Mandatory_Plan_FormulaItem__c}%</span>
-                                <span>{plan.Completed_Mandatory_Plan_Item__c}/{plan.Total_Mandatory_Plan_Item__c}</span>
-                            </div>
-                        </div>
-
-
-                    </div>
-
-
                 </div>
-
-
-                <div class="slds-border_bottom"></div>
-
-                <div class="slds-p-around_small">
-                    <button class="slds-button slds-button_reset slds-text-title_bold slds-grid slds-grid_vertical-align-center"
-                            data-id={plan.Id}
-                            data-open={plan.tasksOpen}
-                            onclick={handleToggleTasks}>
-                        <lightning-icon icon-name={plan.iconName} size="xx-small" class="slds-m-right_x-small"
-                                        alternative-text="Toggle Tasks"></lightning-icon>
-                        <span>{plan.TaskListLabel}</span>
-                    </button>
-
-                    <template if:true={plan.tasksOpen}>
-                        <div class="slds-m-top_small">
-                            <c-action-plan-task-table plan={plan} ontaskstatuschange={handleTaskStatusChange} onsaved={handleTaskSaved}></c-action-plan-task-table>
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </template>
+            </template>
+        </div>
     </div>
 </template>

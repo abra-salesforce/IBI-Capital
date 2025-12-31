@@ -1,3 +1,26 @@
-.task-row.task-success td { background: #acf3e4 !important; }
-.task-row.task-open td { background: #ffffff !important; }
-.task-row.task-waiting td { background: #e5e5e5 !important; }
+.task-row.task-success { 
+    background-color: #acf3e4;
+}
+.task-row.task-open { 
+    background-color: #ffffff;
+}
+.task-row.task-waiting { 
+    background-color: #e5e5e5;
+}
+
+thead tr th:first-child{
+    border-radius: 7px 0px 0px 0px;
+}
+thead tr th:last-child{
+    border-radius: 0px 7px 0px 0px;
+}
+
+tbody tr:last-child{
+    border-radius: 0px 0px 7px 7px;
+}
+tbody tr:last-child td:first-child{
+    border-radius: 0px 0px 0px 7px;
+}
+tbody tr:last-child td:last-child{
+    border-radius: 0px 0px 7px 0px;
+}

@@ -8,6 +8,7 @@ export default class ActionPlanTaskTable extends LightningElement {
     @track tasks = [];
     loading = true;
     @track selectedTask = null;
+    currentModal = null;
 
     connectedCallback() {
       this.loadTasks();
@@ -54,13 +55,19 @@ export default class ActionPlanTaskTable extends LightningElement {
     handleSelectedRow(event) {
       const taskId = event.currentTarget.dataset.id;
       this.selectedTask = this.tasks.find(t => t.Id === taskId);
+      this.currentModal = 'details';
     }
 
-    get openModal() {
-      return this.selectedTask !== null;
+    get openTaskDetailsModal() {
+      return this.currentModal === 'details';
+    }
+
+    get openChangeOwnerModal() {
+      return this.currentModal === 'owner';
     }
 
     handleCloseModal() {
+      this.currentModal = null;
       this.selectedTask = null;
     }
 
@@ -104,7 +111,14 @@ export default class ActionPlanTaskTable extends LightningElement {
     }
 
     handleTaskSaved() {
-        this.selectedTask = null;
+      this.selectedTask = null;
+    }
+
+    handleChangeOwner(event) {
+        event.stopPropagation();
+        const taskId = event.currentTarget.dataset.id;
+        this.selectedTask = this.tasks.find(t => t.Id === taskId);
+        this.currentModal = 'owner';
     }
 
 

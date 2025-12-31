@@ -19,7 +19,7 @@
                             <div class="slds-truncate" title="Assigned to">Assigned to</div>
                         </th>
                         <th scope="col">
-                            <div class="slds-truncate" title="Assigned to">Status</div>
+                            <div class="slds-truncate" title="Status">Status</div>
                         </th>
                         <th scope="col">
                             <div class="slds-truncate slds-text-align_center" title="Completed">Completed</div>
@@ -36,7 +36,6 @@
                                 <div class="slds-truncate slds-text-title_bold" title={t.Subject}>
                                     <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
                                         <lightning-helptext content={t.Plan_Item__r.Instructions__c}></lightning-helptext>
-
                                         <span class="slds-truncate slds-m-left_x-small">
                                             {t.Subject}
                                         </span>
@@ -57,6 +56,15 @@
                             <td>
                                 <div class="slds-truncate slds-text-title_bold" title={t.Owner.Name}>
                                     {t.Owner.Name}
+                                    <lightning-button-icon
+                                        icon-name="utility:change_owner"
+                                        alternative-text="Change owner"
+                                        class="slds-m-left_x-small"
+                                        data-id={t.Id}
+                                        variant="bare"
+                                        size="small"
+                                        onclick={handleChangeOwner}>
+                                    </lightning-button-icon>                                
                                 </div>
                             </td>
                             <td>
@@ -97,12 +105,20 @@
             </table>
         </div>
 
-        <template lwc:if={openModal}>
+        <template lwc:if={openTaskDetailsModal}>
             <c-task-details-modal
                 task={selectedTask}
                 onclose={handleCloseModal}
                 onsaved={handleTaskSaved}>
             </c-task-details-modal>
+        </template>
+
+        <template lwc:if={openChangeOwnerModal}>
+            <c-change-owner-modal
+                task={selectedTask}
+                onclose={handleCloseModal}
+                onsaved={handleTaskSaved}>
+            </c-change-owner-modal>
         </template>
 
     </template>

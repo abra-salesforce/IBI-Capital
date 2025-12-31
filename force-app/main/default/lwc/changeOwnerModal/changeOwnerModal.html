@@ -1,0 +1,71 @@
+<template>
+    <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header">
+                <h2 class="slds-text-heading_small">Change Task Owner</h2>
+            </header>
+
+            <div class="slds-modal__content slds-p-around_medium" style="min-height: 250px;">
+                <div class="slds-form-element">
+                    <label class="slds-form-element__label">
+                        <abbr class="slds-required" title="required">*</abbr> Select New Owner
+                    </label>
+                    <div class="slds-form-element__control">
+                        <div class="slds-combobox_container">
+                            <div class={comboboxClass} role="combobox" aria-haspopup="listbox">
+                                
+                                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_group-right" role="none">
+                                    
+                                    <div class="custom-object-switcher">
+                                        <button class="slds-button slds-button_icon" onclick={toggleMenu} title="Select search type">
+                                            <lightning-icon icon-name={selectedIcon} size="small" class="slds-m-left_xx-small"></lightning-icon>
+                                            <lightning-icon icon-name="utility:down" size="xx-small" class="slds-m-left_xxx-small slds-m-right_xx-small"></lightning-icon>
+                                        </button>
+
+                                        <template if:true={isMenuOpen}>
+                                            <div class="slds-dropdown slds-dropdown_left slds-dropdown_x-small">
+                                                <ul class="slds-dropdown__list" role="menu">
+                                                    <li class="slds-dropdown__item" role="presentation" onclick={selectUser}>
+                                                        <a role="menuitem">
+                                                            <span class="slds-truncate">
+                                                                <lightning-icon icon-name="standard:user" size="small" class="slds-m-right_small"></lightning-icon>
+                                                                Users
+                                                            </span>
+                                                        </a>
+                                                    </li>
+                                                    <li class="slds-dropdown__item" role="presentation" onclick={selectQueue}>
+                                                        <a role="menuitem">
+                                                            <span class="slds-truncate">
+                                                                <lightning-icon icon-name="standard:orders" size="small" class="slds-m-right_small"></lightning-icon>
+                                                                Queues
+                                                            </span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <input type="text" 
+                                           class="slds-input slds-combobox__input custom-padded-input" 
+                                           placeholder={placeholderText} 
+                                           readonly />
+
+                                    <span class="slds-input__icon-group slds-input__icon-group_right">
+                                        <lightning-icon icon-name="utility:search" size="x-small" class="slds-input__icon"></lightning-icon>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={handleClose}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={handleSave}>Change Owner</button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

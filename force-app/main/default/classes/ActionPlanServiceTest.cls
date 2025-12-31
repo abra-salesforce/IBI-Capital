@@ -144,4 +144,13 @@ public with sharing class ActionPlanServiceTest {
         ActionPlanPanelController.updateTaskDescription(t.Id, 'test');
     }
 
+    //PlanItemTriggerHandler
+    @IsTest
+    static void deletePlanItem() {
+        Id planId = createPlanForSetupData();
+        Plan_Item__c planItem = [SELECT Id FROM Plan_Item__c LIMIT 1];
+        delete planItem;
+
+    }
+
 }
