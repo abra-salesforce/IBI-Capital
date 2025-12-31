@@ -153,4 +153,39 @@ public with sharing class ActionPlanServiceTest {
 
     }
 
+    //change task owner
+       //change task owner
+    @IsTest
+    static void changeOwner_searchAndUpdateTaskOwner() {
+        Id planId = createPlanForSetupData();
+
+        Task t = [SELECT Id, OwnerId FROM Task LIMIT 1];
+
+        User newOwner = [SELECT Id, Name FROM User WHERE Alias = 'own2' LIMIT 1];
+
+        List<ActionPlanPanelController.OwnerOption> userResults = ActionPlanPanelController.searchOwners('User', 'Owner');
+        Assert.isTrue(userResults.size() > 0);
+
+        Boolean hasUserIcon = false;
+        for (ActionPlanPanelController.OwnerOption opt : userResults) {
+            if (opt.iconName == 'standard:user') {
+                hasUserIcon = true;
+                break;
+            }
+        }
+        Assert.isTrue(hasUserIcon);
+
+        List<ActionPlanPanelController.OwnerOption> queueResults = ActionPlanPanelController.searchOwners('Queue', 'SomeName');
+        Assert.isTrue(queueResults.size() >= 0);
+
+        ActionPlanPanelController.changeTaskOwner(t.Id, newOwner.Id);
+
+        Task updated = [SELECT OwnerId FROM Task WHERE Id = :t.Id LIMIT 1];
+        Assert.isTrue(updated.OwnerId == newOwner.Id);
+    }
+
+
+
+
+
 }

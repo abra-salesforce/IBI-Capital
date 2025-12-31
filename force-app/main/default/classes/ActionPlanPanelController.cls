@@ -77,7 +77,7 @@ public with sharing class ActionPlanPanelController {
 
     // change owner modal
 
- public class OwnerOption {
+    public class OwnerOption {
         @AuraEnabled public Id id;
         @AuraEnabled public String name;
         @AuraEnabled public String iconName;
@@ -92,14 +92,7 @@ public with sharing class ActionPlanPanelController {
         Integer limitSize = hasSearch ? 20 : 3;
 
         if (ownerType == 'User') {
-            for (User u : [
-                SELECT Id, Name
-                FROM User
-                WHERE IsActive = true
-                AND Name LIKE :likeTerm
-                ORDER BY Name
-                LIMIT :limitSize
-            ]) {
+            for (User u : [SELECT Id, Name FROM User WHERE IsActive = true AND Name LIKE :likeTerm ORDER BY Name LIMIT :limitSize]) {
                 OwnerOption opt = new OwnerOption();
                 opt.id = u.Id;
                 opt.name = u.Name;
@@ -107,19 +100,8 @@ public with sharing class ActionPlanPanelController {
                 results.add(opt);
             }
         } else if (ownerType == 'Queue') {
-            for (Group g : [
-                SELECT Id, Name
-                FROM Group
-                WHERE Type = 'Queue'
-                AND Id IN (
-                    SELECT QueueId
-                    FROM QueueSobject
-                    WHERE SObjectType = 'Task'
-                )
-                AND Name LIKE :likeTerm
-                ORDER BY Name
-                LIMIT :limitSize
-            ]) {
+            for (Group g : [SELECT Id, Name FROM Group WHERE Type = 'Queue' AND Id IN (SELECT QueueId FROM QueueSobject WHERE SObjectType = 'Task')
+                            AND Name LIKE :likeTerm ORDER BY Name LIMIT :limitSize]) {
                 OwnerOption opt = new OwnerOption();
                 opt.id = g.Id;
                 opt.name = g.Name;
