@@ -111,7 +111,9 @@ export default class ActionPlanTaskTable extends LightningElement {
     }
 
     handleTaskSaved() {
+      this.currentModal = null;
       this.selectedTask = null;
+      this.loadTasks();
     }
 
     handleChangeOwner(event) {
@@ -120,10 +122,5 @@ export default class ActionPlanTaskTable extends LightningElement {
         this.selectedTask = this.tasks.find(t => t.Id === taskId);
         this.currentModal = 'owner';
     }
-
-
-
-
-      
 
 }

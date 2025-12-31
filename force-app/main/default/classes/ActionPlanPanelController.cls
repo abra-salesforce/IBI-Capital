@@ -74,4 +74,68 @@ public with sharing class ActionPlanPanelController {
             throw new AuraHandledException(e.getMessage());
         }
     }
+
+    // change owner modal
+
+ public class OwnerOption {
+        @AuraEnabled public Id id;
+        @AuraEnabled public String name;
+        @AuraEnabled public String iconName;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<OwnerOption> searchOwners(String ownerType, String searchTerm) {
+        List<OwnerOption> results = new List<OwnerOption>();
+        Boolean hasSearch = !String.isBlank(searchTerm);
+        String likeTerm = hasSearch ? ('%' + searchTerm + '%') : '%';
+
+        Integer limitSize = hasSearch ? 20 : 3;
+
+        if (ownerType == 'User') {
+            for (User u : [
+                SELECT Id, Name
+                FROM User
+                WHERE IsActive = true
+                AND Name LIKE :likeTerm
+                ORDER BY Name
+                LIMIT :limitSize
+            ]) {
+                OwnerOption opt = new OwnerOption();
+                opt.id = u.Id;
+                opt.name = u.Name;
+                opt.iconName = 'standard:user';
+                results.add(opt);
+            }
+        } else if (ownerType == 'Queue') {
+            for (Group g : [
+                SELECT Id, Name
+                FROM Group
+                WHERE Type = 'Queue'
+                AND Id IN (
+                    SELECT QueueId
+                    FROM QueueSobject
+                    WHERE SObjectType = 'Task'
+                )
+                AND Name LIKE :likeTerm
+                ORDER BY Name
+                LIMIT :limitSize
+            ]) {
+                OwnerOption opt = new OwnerOption();
+                opt.id = g.Id;
+                opt.name = g.Name;
+                opt.iconName = 'standard:queue';
+                results.add(opt);
+            }
+        }
+
+        return results;
+    }
+
+    @AuraEnabled
+    public static void changeTaskOwner(Id taskId, Id ownerId) {
+        Task t = [SELECT Id, OwnerId FROM Task WHERE Id = :taskId LIMIT 1];
+        t.OwnerId = ownerId;
+        update t;
+    }
+
 }

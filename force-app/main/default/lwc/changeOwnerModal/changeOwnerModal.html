@@ -10,33 +10,53 @@
                     <label class="slds-form-element__label">
                         <abbr class="slds-required" title="required">*</abbr> Select New Owner
                     </label>
+
                     <div class="slds-form-element__control">
                         <div class="slds-combobox_container">
-                            <div class={comboboxClass} role="combobox" aria-haspopup="listbox">
-                                
-                                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_group-right" role="none">
-                                    
+                            <div class={comboboxClass}
+                                 role="combobox"
+                                 aria-haspopup="listbox"
+                                 aria-expanded={isDropdownOpen}>
+
+                                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_group-right"
+                                     role="none">
+
                                     <div class="custom-object-switcher">
-                                        <button class="slds-button slds-button_icon" onclick={toggleMenu} title="Select search type">
-                                            <lightning-icon icon-name={selectedIcon} size="small" class="slds-m-left_xx-small"></lightning-icon>
-                                            <lightning-icon icon-name="utility:down" size="xx-small" class="slds-m-left_xxx-small slds-m-right_xx-small"></lightning-icon>
+                                        <button class="slds-button slds-button_icon"
+                                                onclick={toggleMenu}
+                                                title="Select search type"
+                                                type="button">
+                                            <lightning-icon icon-name={selectedIcon}
+                                                            size="small"
+                                                            class="slds-m-left_xx-small">
+                                            </lightning-icon>
+                                            <lightning-icon icon-name="utility:down"
+                                                            size="xx-small"
+                                                            class="slds-m-left_xxx-small slds-m-right_xx-small">
+                                            </lightning-icon>
                                         </button>
 
                                         <template if:true={isMenuOpen}>
                                             <div class="slds-dropdown slds-dropdown_left slds-dropdown_x-small">
                                                 <ul class="slds-dropdown__list" role="menu">
-                                                    <li class="slds-dropdown__item" role="presentation" onclick={selectUser}>
-                                                        <a role="menuitem">
+                                                    <li class="slds-dropdown__item" role="presentation">
+                                                        <a role="menuitem" onclick={selectUser}>
                                                             <span class="slds-truncate">
-                                                                <lightning-icon icon-name="standard:user" size="small" class="slds-m-right_small"></lightning-icon>
+                                                                <lightning-icon icon-name="standard:user"
+                                                                                size="small"
+                                                                                class="slds-m-right_small">
+                                                                </lightning-icon>
                                                                 Users
                                                             </span>
                                                         </a>
                                                     </li>
-                                                    <li class="slds-dropdown__item" role="presentation" onclick={selectQueue}>
-                                                        <a role="menuitem">
+                                                    <li class="slds-dropdown__item" role="presentation">
+                                                        <a role="menuitem" onclick={selectQueue}>
                                                             <span class="slds-truncate">
-                                                                <lightning-icon icon-name="standard:orders" size="small" class="slds-m-right_small"></lightning-icon>
+                                                                <lightning-icon icon-name="standard:queue"
+                                                                                size="small"
+                                                                                class="slds-m-right_small">
+                                                                </lightning-icon>
                                                                 Queues
                                                             </span>
                                                         </a>
@@ -46,15 +66,49 @@
                                         </template>
                                     </div>
 
-                                    <input type="text" 
-                                           class="slds-input slds-combobox__input custom-padded-input" 
-                                           placeholder={placeholderText} 
-                                           readonly />
+                                    <input
+                                        type="text"
+                                        class="slds-input slds-combobox__input custom-padded-input"
+                                        placeholder={placeholderText}
+                                        value={searchTerm}
+                                        onfocus={handleInputFocus}
+                                        oninput={handleSearchChange} />
 
                                     <span class="slds-input__icon-group slds-input__icon-group_right">
-                                        <lightning-icon icon-name="utility:search" size="x-small" class="slds-input__icon"></lightning-icon>
+                                        <lightning-icon icon-name="utility:search"
+                                                        size="x-small"
+                                                        class="slds-input__icon">
+                                        </lightning-icon>
                                     </span>
                                 </div>
+
+                                <template if:true={showResults}>
+                                    <div class="slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid" role="listbox">
+                                        <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                            <template for:each={results} for:item="opt">
+                                                <li key={opt.id}
+                                                    class="slds-listbox__item"
+                                                    role="presentation">
+                                                    <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small"
+                                                         role="option"
+                                                         data-id={opt.id}
+                                                         data-name={opt.name}
+                                                         onclick={handleSelectOwner}>
+                                                        <span class="slds-media__figure slds-listbox__option-icon">
+                                                            <lightning-icon icon-name={opt.iconName}
+                                                                            size="small">
+                                                            </lightning-icon>
+                                                        </span>
+                                                        <span class="slds-media__body">
+                                                            <span class="slds-truncate" title={opt.name}>{opt.name}</span>
+                                                        </span>
+                                                    </div>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </template>
+
                             </div>
                         </div>
                     </div>
