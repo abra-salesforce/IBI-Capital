@@ -116,17 +116,9 @@ public without sharing class PlanCreationService {
 			ownerId = (Id)res;
 		}
 
-		/*if (ownerId == null) {
-			String templateName = (String)template.get('Name');
-			String ownerApiName = (String)template.get('Owner_API_Name__c');
-
-			throw new PlanCreationException(
-				'לא ניתן לקבוע Owner לתכנית/משימה מתבנית "' + templateName + '". ' +
-				'בדוק את הגדרות הבעלות בתבנית (Default Owner / Queue / Owner_API_Name__c'
-				+ (String.isNotBlank(ownerApiName) ? ' = ' + ownerApiName : '')
-				+ ') ואת הערך בשדה על הרשומה.'
-			);
-		}*/
+		if (ownerId == null) {
+			throw new PlanCreationException('קיימת שגיאה בבעלים שבתבנית, אנא פנה למנהל המערכת');
+		}
 
 		return ownerId;
 	}
