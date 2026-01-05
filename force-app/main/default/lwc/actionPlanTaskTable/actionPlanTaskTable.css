@@ -24,3 +24,7 @@ tbody tr:last-child td:first-child{
 tbody tr:last-child td:last-child{
     border-radius: 0px 0px 7px 0px;
 }
+
+.clickable {
+    cursor: pointer;
+}

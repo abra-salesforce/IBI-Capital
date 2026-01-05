@@ -1,4 +1,4 @@
-trigger AccountTrigger on Account (before insert, before update, after insert, after update) {
+trigger AccountTrigger on Account (before insert, before update, after insert, after update, after delete, after undelete) {
     if(Trigger.isBefore) {
         if(Trigger.isInsert) {
             AccountTriggerHandler.handleBeforeInsert(Trigger.new);
@@ -13,6 +13,12 @@ trigger AccountTrigger on Account (before insert, before update, after insert, a
         }
         if(Trigger.isUpdate) {
             AccountTriggerHandler.handleAfterUpdate(Trigger.new, Trigger.oldMap);
+        }
+        if(Trigger.isDelete) {
+            AccountTriggerHandler.handleAfterDelete(Trigger.old);
+        }
+        if(Trigger.isUndelete) {
+            AccountTriggerHandler.handleAfterUndelete(Trigger.new);
         }
     }
 }
