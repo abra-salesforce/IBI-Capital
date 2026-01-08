@@ -16,7 +16,7 @@ public without sharing class PlanCreationService {
     @InvocableMethod (label='Create Plan and Plan Items')
     public static void createPlan(List<PlanInput> inputs){
         PlanInput input = inputs[0];
-        Plan_Template__c planTemplate = [SELECT Id, Name, Description__c, Default_Owner_Type__c, Owner_API_Name__c, Owner_Queue__c, Owner_User__c, Start_Time_Duration__c,
+        Plan_Template__c planTemplate = [SELECT Id, Name, Description__c, Default_Owner_Type__c, Owner_API_Name__c, Owner_Queue__c, Owner_User__c,
                                         (SELECT Id, Name, Plan_Template_If_Completed__c, Step_Order__c, Is_Mandatory__c, Instructions__c, Duration_Days__c, Previous_Plan_Template_Item__c, Default_Owner_Type__c, Owner_API_Name__c, Owner_Queue__c, Owner_User__c FROM Plan_Template_Items__r order by Step_Order__c) FROM Plan_Template__c WHERE Id = :input.planTemplateId LIMIT 1];
         
 		List<Plan_Template_Item__c> templateItems = planTemplate.Plan_Template_Items__r;

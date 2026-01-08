@@ -14,8 +14,8 @@ trigger AccountTrigger on Account (before insert, before update, after insert, a
         if(Trigger.isUpdate) {
             AccountTriggerHandler.handleAfterUpdate(Trigger.new, Trigger.oldMap);
         }
-        if(Trigger.isDelete) {
-            AccountTriggerHandler.handleAfterDelete(Trigger.old);
+        if (Trigger.isDelete) {
+            AccountTriggerHandler.handleAfterDelete(Trigger.old, Trigger.oldMap);
         }
         if(Trigger.isUndelete) {
             AccountTriggerHandler.handleAfterUndelete(Trigger.new);
