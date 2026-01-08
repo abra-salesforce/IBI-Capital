@@ -23,7 +23,6 @@ export default class TaskDetailsModal extends LightningElement {
                 })
             );
         } catch (error) {
-            console.error('Error updating task', error);
             this.errorMessage =
                 error?.body?.message ||
                 'An error occurred while updating the task.';

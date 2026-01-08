@@ -142,7 +142,12 @@ export default class ChangeOwnerModal extends LightningElement {
                 }
             }));
         } catch (e) {
-            console.error('changeTaskOwner error', e?.body?.message || e);
+            const msg = e?.body?.message || 'שגיאה בשינוי בעלים למשימה';
+            this.dispatchEvent(new CustomEvent('validationerror', {
+                detail: { message: msg },
+                bubbles: true,
+                composed: true
+            }));
         } finally {
             this.isSaving = false;
         }

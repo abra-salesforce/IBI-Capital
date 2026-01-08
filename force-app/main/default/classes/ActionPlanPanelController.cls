@@ -51,8 +51,11 @@ public with sharing class ActionPlanPanelController {
 
     @AuraEnabled
     public static void updateTaskStatus(Id taskId, String status) {
-        Task task = new Task (Id = taskId, Status = status);
-        update task;
+        try {
+            update new Task(Id = taskId, Status = status);
+        } catch (DmlException e) {
+            throw new AuraHandledException(extractDmlMessages(e));
+        }
     }
 
     @AuraEnabled(cacheable=false)
@@ -67,11 +70,10 @@ public with sharing class ActionPlanPanelController {
 
     @AuraEnabled
     public static void updateTaskDescription(Id taskId, String description){
-        Task task = new Task (Id = taskId, Description = description);
         try {
-            update task;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
+            update new Task(Id = taskId, Description = description);
+        } catch (DmlException e) {
+            throw new AuraHandledException(extractDmlMessages(e));
         }
     }
 
@@ -115,9 +117,30 @@ public with sharing class ActionPlanPanelController {
 
     @AuraEnabled
     public static void changeTaskOwner(Id taskId, Id ownerId) {
-        Task t = [SELECT Id, OwnerId FROM Task WHERE Id = :taskId LIMIT 1];
-        t.OwnerId = ownerId;
-        update t;
+        try {
+            Task t = [SELECT Id, OwnerId FROM Task WHERE Id = :taskId LIMIT 1];
+            t.OwnerId = ownerId;
+            update t;
+        } catch (DmlException e) {
+            throw new AuraHandledException(extractDmlMessages(e));
+        }
     }
+
+    private static String extractDmlMessages(DmlException e) {
+        List<String> msgs = new List<String>();
+
+        Integer count = e.getNumDml();
+        for (Integer i = 0; i < count; i++) {
+            String m = e.getDmlMessage(i);
+            if (!String.isBlank(m)) msgs.add(m);
+        }
+
+        if (msgs.isEmpty() && !String.isBlank(e.getMessage())) {
+            msgs.add(e.getMessage());
+        }
+
+        return String.join(msgs, '\n');
+    }
+
 
 }

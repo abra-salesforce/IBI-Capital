@@ -94,5 +94,17 @@ export default class ActionPlanPanel extends LightningElement {
         );
     }
 
+    handleChildError(event) {
+      const msg = event.detail?.message || 'שגיאה';
+      this.dispatchEvent(
+          new ShowToastEvent({
+              title: 'שגיאה',
+              message: msg,
+              variant: 'error'
+          })
+      );
+    }
+
+
 
 }

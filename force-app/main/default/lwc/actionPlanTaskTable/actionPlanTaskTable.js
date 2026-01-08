@@ -37,7 +37,12 @@ export default class ActionPlanTaskTable extends LightningElement {
           };
         });
       } catch (e) {
-        console.error('getPlanTasks error:', e?.body ?? e);
+        const msg = e?.body?.message || 'שגיאה בעדכון המשימה';
+        this.dispatchEvent(new CustomEvent('validationerror', {
+            detail: { message: msg },
+            bubbles: true,
+            composed: true
+        }));
         this.tasks = [];
       } finally {
         this.loading = false;
@@ -106,7 +111,12 @@ export default class ActionPlanTaskTable extends LightningElement {
                 composed: true
             }));
         } catch (e) {
-            console.error(e?.body?.message || e);
+          const msg = e?.body?.message || 'שגיאה בעדכון המשימה';
+          this.dispatchEvent(new CustomEvent('validationerror', {
+              detail: { message: msg },
+              bubbles: true,
+              composed: true
+          }));
         }
     }
 
