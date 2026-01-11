@@ -1,9 +1,14 @@
 import { LightningElement, api } from 'lwc';
-import updateTaskDescription from '@salesforce/apex/ActionPlanPanelController.updateTaskDescription';
+import updateTaskDescriptionAndDate from '@salesforce/apex/ActionPlanPanelController.updateTaskDescriptionAndDate';
 
 export default class TaskDetailsModal extends LightningElement {
     @api task;
     errorMessage;
+    dueDateValue;
+
+    connectedCallback() {
+        this.dueDateValue = this.task?.ActivityDate || null;
+    }
 
     handleClose() {
         this.dispatchEvent(new CustomEvent('close'));
@@ -13,11 +18,11 @@ export default class TaskDetailsModal extends LightningElement {
         this.errorMessage = null;
         const description = this.template.querySelector('lightning-textarea')?.value;
         try {
-            await updateTaskDescription({taskId: this.task.Id, description: description});
+            await updateTaskDescriptionAndDate({taskId: this.task.Id, description: description, dueDate: this.dueDateValue});
 
             this.dispatchEvent(
                 new CustomEvent('saved', {
-                    detail: { taskId: this.task.Id, description },
+                    detail: { taskId: this.task.Id, description, dueDate: this.dueDateValue },
                     bubbles: true,
                     composed: true
                 })
@@ -28,4 +33,10 @@ export default class TaskDetailsModal extends LightningElement {
                 'An error occurred while updating the task.';
         }
     }
+
+    handleDueDateChange(event) {
+        this.dueDateValue = event.target.value;
+    }
+
+
 }

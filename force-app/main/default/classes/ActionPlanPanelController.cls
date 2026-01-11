@@ -69,9 +69,13 @@ public with sharing class ActionPlanPanelController {
     }
 
     @AuraEnabled
-    public static void updateTaskDescription(Id taskId, String description){
+    public static void updateTaskDescriptionAndDate(Id taskId, String description, Date dueDate){
         try {
-            update new Task(Id = taskId, Description = description);
+            update new Task(
+                Id = taskId,
+                Description = description,
+                ActivityDate = dueDate
+            );
         } catch (DmlException e) {
             throw new AuraHandledException(extractDmlMessages(e));
         }

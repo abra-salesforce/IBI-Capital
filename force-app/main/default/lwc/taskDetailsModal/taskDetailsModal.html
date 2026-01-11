@@ -25,12 +25,13 @@
                             <span class="slds-m-left_x-small">Due Date</span>
                         </div>
                         <div class="slds-text-body_small">
-                            <lightning-formatted-date-time
-                                value={task.ActivityDate}
-                                year="numeric"
-                                month="2-digit"
-                                day="2-digit">
-                            </lightning-formatted-date-time>
+                            <lightning-input
+                                type="date"
+                                variant="label-hidden"
+                                value={dueDateValue}
+                                date-style="short"
+                                onchange={handleDueDateChange}>
+                            </lightning-input>
                         </div>
                     </div>
                 </div>

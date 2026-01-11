@@ -141,7 +141,7 @@ public with sharing class ActionPlanServiceTest {
         Task t = [SELECT Id, Status FROM Task LIMIT 1];
         ActionPlanPanelController.updateTaskStatus(t.Id, 'Completed');
         ActionPlanPanelController.getPlanById(planId);
-        ActionPlanPanelController.updateTaskDescription(t.Id, 'test');
+        ActionPlanPanelController.updateTaskDescriptionAndDate(t.Id, 'test', Date.today());
     }
 
     //PlanItemTriggerHandler
