@@ -24,20 +24,28 @@ export default class ActionPlanTaskTable extends LightningElement {
         }
 
         const result = await getPlanTasks({ planId }); 
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
         this.tasks = (result || []).map(t => {
           const status = t.Status;
+          const due = t.ActivityDate ? new Date(t.ActivityDate) : null; // YYYY-MM-DD
+          if (due) due.setHours(0, 0, 0, 0);
+          const isOverdue = !!due && due < today && status !== 'Completed';
           return {
             ...t,
             Completed: status === 'Completed',
             checkboxLabel: status === 'Completed' ? 'Completed' : 'Mark as completed',
             iconName: status === 'Completed' ? 'utility:check' : null,
             disabled: status === 'Waiting in Dependency' ? true : false,
+            isMandatory: !!t.Plan_Item__r?.Is_Mandatory__c,
+            hasInstrunction: t.Plan_Item__r?.Instructions__c != null ? true : false,
+            dateClass: 'slds-truncate slds-text-title_bold ' + (isOverdue ? 'slds-text-color_error' : ''),
             rowClass: `slds-hint-parent task-row ${this.getRowClassByStatus(status)}`
           };
         });
       } catch (e) {
-        const msg = e?.body?.message || 'שגיאה בעדכון המשימה';
+        const msg = e?.body?.message || e?.message || 'שגיאה בטעינת המשימות';
         this.dispatchEvent(new CustomEvent('validationerror', {
             detail: { message: msg },
             bubbles: true,
@@ -87,21 +95,18 @@ export default class ActionPlanTaskTable extends LightningElement {
         const task = this.tasks.find(t => t.Id === taskId);
         if (!task) return;
 
+        this.selectedTask = task; 
+        
         const isCurrentlyCompleted = task.Completed;
         const newStatus = isCurrentlyCompleted ? 'Reopen' : 'Completed';
 
-        if (isCurrentlyCompleted) {
-            const confirmed = await LightningConfirm.open({
-                message: 'האם אתה בטוח שתרצה לשנות סטטוס?',
-                theme: 'warning'
-            });
-            if (!confirmed) {
-                await this.loadTasks();
-                return;
-            }
+        if (isCurrentlyCompleted && this.currentModal !== 'confirm') {
+            this.currentModal = 'confirm';
+            return;
         }
 
         try {
+            this.loading = true;
             await updateStatus({ taskId, status: newStatus });
             await this.loadTasks();
 
@@ -111,12 +116,16 @@ export default class ActionPlanTaskTable extends LightningElement {
                 composed: true
             }));
         } catch (e) {
-          const msg = e?.body?.message || 'שגיאה בעדכון המשימה';
-          this.dispatchEvent(new CustomEvent('validationerror', {
-              detail: { message: msg },
-              bubbles: true,
-              composed: true
-          }));
+            const msg = e?.body?.message || 'שגיאה בעדכון המשימה';
+            this.dispatchEvent(new CustomEvent('validationerror', {
+                detail: { message: msg },
+                bubbles: true,
+                composed: true
+            }));
+        } finally {
+            this.loading = false;
+            this.currentModal = null;
+            // אנחנו לא מאפסים את selectedTask כאן כדי לא להרוס פונקציות אחרות
         }
     }
 
@@ -131,6 +140,17 @@ export default class ActionPlanTaskTable extends LightningElement {
         const taskId = event.currentTarget.dataset.id;
         this.selectedTask = this.tasks.find(t => t.Id === taskId);
         this.currentModal = 'owner';
+    }
+
+    get openConfirmModal() {
+      return this.currentModal === 'confirm';
+    }
+
+    handleSaveConfirm() {
+        this.handleStatusClick({ 
+            stopPropagation: () => {}, 
+            currentTarget: { dataset: { id: this.selectedTask.Id } } 
+        });
     }
 
 }

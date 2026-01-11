@@ -25,7 +25,12 @@
                             <span class="slds-m-left_x-small">Due Date</span>
                         </div>
                         <div class="slds-text-body_small">
-                            <span>{task.ActivityDate}</span>
+                            <lightning-formatted-date-time
+                                value={task.ActivityDate}
+                                year="numeric"
+                                month="2-digit"
+                                day="2-digit">
+                            </lightning-formatted-date-time>
                         </div>
                     </div>
                 </div>

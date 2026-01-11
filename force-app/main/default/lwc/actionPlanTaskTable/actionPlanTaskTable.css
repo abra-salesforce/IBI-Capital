@@ -28,3 +28,41 @@ tbody tr:last-child td:last-child{
 .clickable {
     cursor: pointer;
 }
+
+.name-column-container {
+    width: 100%;
+    min-height: 2rem;
+}
+
+.helptext-container {
+    display: flex;
+    align-items: center;
+    transform: translateY(-1.5px);
+}
+
+.custom-helptext {
+    display: flex;
+    line-height: 0;
+}
+
+.custom-helptext :host {
+    display: flex;
+}
+
+.assigned-to-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.custom-owner-icon {
+    display: flex;
+    line-height: 0;
+    transform: translateY(-2px); 
+}
+
+.custom-owner-icon :host {
+    display: flex;
+    align-items: center;
+    height: auto;
+}

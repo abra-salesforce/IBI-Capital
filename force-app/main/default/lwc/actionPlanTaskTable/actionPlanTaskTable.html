@@ -9,11 +9,14 @@
             <table class="slds-table slds-table_cell-buffer slds-table_bordered">
                 <thead>
                     <tr class="slds-line-height_reset">
-                        <th scope="col">
+                        <th scope="col" class="slds-text-align_right">
                             <div class="slds-truncate" title="Name">Name</div>
                         </th>
                         <th scope="col">
-                            <div class="slds-truncate" title="Date">Date</div>
+                            <div class="slds-truncate" title="Mandatory">Mandatory</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Due Date">Due Date</div>
                         </th>
                         <th scope="col">
                             <div class="slds-truncate" title="Assigned to">Assigned to</div>
@@ -32,19 +35,35 @@
                             data-id={t.Id}
                             class={t.rowClass}
                             onclick={handleSelectedRow}>
-                            <td>
-                                <div class="slds-truncate slds-text-title_bold" title={t.Subject}>
-                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
-                                        <lightning-helptext content={t.Plan_Item__r.Instructions__c}></lightning-helptext>
-                                        <span class="slds-truncate slds-m-left_x-small slds-text-link clickable">
-                                            {t.Subject}
-                                        </span>
+                            <td class="slds-text-align_right">
+                                <div class="name-column-container slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
+                                    
+                                    <div class="helptext-container slds-p-right_x-small">
+                                        <template lwc:if={t.hasInstrunction}>
+                                            <lightning-helptext 
+                                                content={t.Plan_Item__r.Instructions__c}
+                                                class="custom-helptext">
+                                            </lightning-helptext>
+                                        </template>
                                     </div>
+
+                                    <div class="slds-truncate slds-text-title_bold slds-text-link clickable" 
+                                        title={t.Subject} 
+                                        dir="rtl">
+                                        {t.Subject}
+                                    </div>
+                                    
                                 </div>
                             </td>
-
                             <td>
-                                <div class="slds-truncate slds-text-title_bold" title={t.ActivityDate}>
+                                <template lwc:if={t.isMandatory}>
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-center">
+                                        <lightning-icon icon-name="utility:check" alternative-text="mandatory" size="x-small"></lightning-icon>
+                                    </div>
+                                </template>
+                            </td>
+                            <td>
+                                <div class={t.dateClass} title={t.ActivityDate}>
                                     <lightning-formatted-date-time
                                         value={t.ActivityDate}
                                         year="numeric"
@@ -54,12 +73,13 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="slds-truncate slds-text-title_bold" title={t.Owner.Name}>
-                                    {t.Owner.Name}
+                                <div class="assigned-to-container slds-truncate slds-text-title_bold" title={t.Owner.Name}>
+                                    <span>{t.Owner.Name}</span>
+                                    
                                     <lightning-button-icon
                                         icon-name="utility:change_owner"
                                         alternative-text="Change owner"
-                                        class="slds-m-left_x-small"
+                                        class="custom-owner-icon slds-m-left_x-small"
                                         data-id={t.Id}
                                         variant="bare"
                                         size="small"
@@ -83,19 +103,6 @@
                                         disabled={t.disabled}
                                         onclick={handleStatusClick}>
                                     </lightning-button-icon>
-                                    <!--<lightning-input
-                                        type="checkbox"
-                                        data-id={t.Id}
-                                        checked={t.Completed}
-                                        onchange={handleCheckCompleted}
-                                        onclick={handleCheckboxClick}
-                                        label={t.checkboxLabel}
-                                        variant="label-hidden">
-                                    </lightning-input>
-
-                                    <span class="slds-truncate slds-text-title_bold slds-m-left_x-small">
-                                        {t.checkboxLabel}
-                                    </span>-->
                                 </div>
                             </td>
 
@@ -121,6 +128,28 @@
             </c-change-owner-modal>
         </template>
 
+    </template>
+
+    <template lwc:if={openConfirmModal}>
+        <section role="dialog" class="slds-modal slds-fade-in-open slds-modal_prompt">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header slds-theme_warning slds-theme_alert-texture" 
+                        style="text-align: right; direction: rtl;">
+                    <h2 class="slds-text-heading_medium" style="width: 100%;">אישור</h2>
+                </header>
+                
+                <div class="slds-modal__content slds-p-around_medium" 
+                    style="text-align: right; direction: rtl; display: block;">
+                    <p>האם אתה בטוח שתרצה לשנות סטטוס?</p>
+                </div>
+                
+                <footer class="slds-modal__footer slds-grid slds-grid_align-end">
+                    <button class="slds-button slds-button_neutral slds-m-left_x-small" onclick={handleCloseModal}>ביטול</button>
+                    <button class="slds-button slds-button_brand" onclick={handleSaveConfirm}>אישור</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
     </template>
     
 </template>
