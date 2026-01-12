@@ -9,6 +9,7 @@ export default class ActionPlanTaskTable extends LightningElement {
     loading = true;
     @track selectedTask = null;
     currentModal = null;
+    updatingTaskId = null;
 
     connectedCallback() {
       this.loadTasks();
@@ -27,23 +28,8 @@ export default class ActionPlanTaskTable extends LightningElement {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        this.tasks = (result || []).map(t => {
-          const status = t.Status;
-          const due = t.ActivityDate ? new Date(t.ActivityDate) : null; // YYYY-MM-DD
-          if (due) due.setHours(0, 0, 0, 0);
-          const isOverdue = !!due && due < today && status !== 'Completed';
-          return {
-            ...t,
-            Completed: status === 'Completed',
-            checkboxLabel: status === 'Completed' ? 'Completed' : 'Mark as completed',
-            iconName: status === 'Completed' ? 'utility:check' : null,
-            disabled: status === 'Waiting in Dependency' ? true : false,
-            isMandatory: !!t.Plan_Item__r?.Is_Mandatory__c,
-            hasInstrunction: t.Plan_Item__r?.Instructions__c != null ? true : false,
-            dateClass: 'slds-truncate slds-text-title_bold ' + (isOverdue ? 'slds-text-color_error' : ''),
-            rowClass: `slds-hint-parent task-row ${this.getRowClassByStatus(status)}`
-          };
-        });
+        this.tasks = (result || []).map(t => this.enrichTask(t, today));
+
       } catch (e) {
         const msg = e?.body?.message || e?.message || 'שגיאה בטעינת המשימות';
         this.dispatchEvent(new CustomEvent('validationerror', {
@@ -56,6 +42,31 @@ export default class ActionPlanTaskTable extends LightningElement {
         this.loading = false;
       }
     }
+
+    enrichTask(t, today) {
+  const status = t.Status;
+  const due = t.ActivityDate ? new Date(t.ActivityDate) : null;
+  if (due) due.setHours(0, 0, 0, 0);
+
+  const isOverdue = !!due && due < today && status !== 'Completed';
+
+  const isUpdating = (t.Id === this.updatingTaskId);
+
+  const baseIcon = status === 'Completed' ? 'utility:check' : null;
+
+  return {
+    ...t,
+    Completed: status === 'Completed',
+    checkboxLabel: status === 'Completed' ? 'Completed' : 'Mark as completed',
+    displayIconName: isUpdating ? 'utility:spinner' : (status === 'Completed' ? 'utility:check' : null),
+    displayDisabled: (status === 'Waiting in Dependency') || isUpdating,
+    isMandatory: !!t.Plan_Item__r?.Is_Mandatory__c,
+    hasInstrunction: t.Plan_Item__r?.Instructions__c != null,
+    dateClass: 'slds-truncate slds-text-title_bold ' + (isOverdue ? 'slds-text-color_error' : ''),
+    rowClass: `slds-hint-parent task-row ${this.getRowClassByStatus(status)}`
+  };
+}
+
 
     getRowClassByStatus(status) {
       if (status === 'Completed') return 'task-success';
@@ -94,6 +105,7 @@ export default class ActionPlanTaskTable extends LightningElement {
         const taskId = event.currentTarget.dataset.id;
         const task = this.tasks.find(t => t.Id === taskId);
         if (!task) return;
+        if (this.updatingTaskId) return;
 
         this.selectedTask = task; 
         
@@ -105,10 +117,27 @@ export default class ActionPlanTaskTable extends LightningElement {
             return;
         }
 
+        this.updatingTaskId = taskId;
+
+        {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          this.tasks = this.tasks.map(t => this.enrichTask(t, today));
+        }
+
         try {
-            this.loading = true;
-            await updateStatus({ taskId, status: newStatus });
-            await this.loadTasks();
+            const result = await updateStatus({ taskId, status: newStatus });
+
+            const updated = result?.updatedTasks || [];
+            const updatedMap = new Map(updated.map(t => [t.Id, t]));
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            this.tasks = this.tasks.map(oldT => {
+              const fresh = updatedMap.get(oldT.Id);
+              return fresh ? this.enrichTask(fresh, today) : this.enrichTask(oldT, today);
+            });
 
             this.dispatchEvent(new CustomEvent('taskstatuschange', {
                 detail: { planId: this.plan?.Id },
@@ -123,9 +152,12 @@ export default class ActionPlanTaskTable extends LightningElement {
                 composed: true
             }));
         } finally {
-            this.loading = false;
+            this.updatingTaskId = null;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            this.tasks = this.tasks.map(t => this.enrichTask(t, today));
             this.currentModal = null;
-            // אנחנו לא מאפסים את selectedTask כאן כדי לא להרוס פונקציות אחרות
         }
     }
 

@@ -49,10 +49,28 @@ public with sharing class ActionPlanPanelController {
         ];
     }
 
+    public class TaskUpdateResult {
+        @AuraEnabled public List<Task> updatedTasks;
+    }
+
+
     @AuraEnabled
-    public static void updateTaskStatus(Id taskId, String status) {
+    public static TaskUpdateResult updateTaskStatus(Id taskId, String status) {
         try {
+            TaskPlanItemService.clearChanged();
+
             update new Task(Id = taskId, Status = status);
+            TaskPlanItemService.changedTaskIds.add(taskId);
+
+            TaskUpdateResult res = new TaskUpdateResult();
+            res.updatedTasks = [
+                SELECT Id, Subject, Status, Description, ActivityDate, OwnerId, Owner.Name,
+                    Plan_Item__r.Instructions__c, Plan_Item__r.Is_Mandatory__c
+                FROM Task
+                WHERE Id IN :TaskPlanItemService.changedTaskIds
+            ];
+            return res;
+
         } catch (DmlException e) {
             throw new AuraHandledException(extractDmlMessages(e));
         }

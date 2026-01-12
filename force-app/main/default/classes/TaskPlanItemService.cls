@@ -1,4 +1,16 @@
 public with sharing class TaskPlanItemService {
+    public static Set<Id> changedTaskIds = new Set<Id>();
+
+    public static void clearChanged() {
+        changedTaskIds.clear();
+    }
+
+    public static void markChangedTasks(List<Task> tasks) {
+        for (Task t : tasks) {
+            if (t != null && t.Id != null) changedTaskIds.add(t.Id);
+        }
+    }
+
     public static void linkTaskToPlanItem(List <Task> newTasks) {
         List<Plan_Item__c> planItemsToUpdate = new List<Plan_Item__c>();
 
@@ -62,6 +74,7 @@ public with sharing class TaskPlanItemService {
         }
 
         if(tasksToUpdate.size() > 0) {
+            TaskPlanItemService.markChangedTasks(tasksToUpdate);
             update tasksToUpdate;
         }
     }
@@ -128,6 +141,7 @@ public with sharing class TaskPlanItemService {
         }
 
         if(tasksToUpdate.size() > 0) {
+            TaskPlanItemService.markChangedTasks(tasksToUpdate);
             update tasksToUpdate;
         }
     }

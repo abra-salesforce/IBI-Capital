@@ -4,130 +4,127 @@
             <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
         </div>
     </template>
-    <template lwc:else>
-        <div class="slds-scrollable_x">
-            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
-                <thead>
-                    <tr class="slds-line-height_reset">
-                        <th scope="col" class="slds-text-align_right">
-                            <div class="slds-truncate" title="Name">Name</div>
-                        </th>
-                        <th scope="col">
-                            <div class="slds-truncate" title="Mandatory">Mandatory</div>
-                        </th>
-                        <th scope="col">
-                            <div class="slds-truncate" title="Due Date">Due Date</div>
-                        </th>
-                        <th scope="col">
-                            <div class="slds-truncate" title="Assigned to">Assigned to</div>
-                        </th>
-                        <th scope="col">
-                            <div class="slds-truncate" title="Status">Status</div>
-                        </th>
-                        <th scope="col">
-                            <div class="slds-truncate slds-text-align_center" title="Completed">Completed</div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <template for:each={tasks} for:item="t">
-                        <tr key={t.Id}
-                            data-id={t.Id}
-                            class={t.rowClass}
-                            onclick={handleSelectedRow}>
-                            <td class="slds-text-align_right">
-                                <div class="name-column-container slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
-                                    
-                                    <div class="helptext-container slds-p-right_x-small">
-                                        <template lwc:if={t.hasInstrunction}>
-                                            <lightning-helptext 
-                                                content={t.Plan_Item__r.Instructions__c}
-                                                class="custom-helptext">
-                                            </lightning-helptext>
-                                        </template>
-                                    </div>
+    <div class="slds-scrollable_x">
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+            <thead>
+                <tr class="slds-line-height_reset">
+                    <th scope="col" class="slds-text-align_center">
+                        <div class="slds-truncate" title="Name">Name</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="Mandatory">Mandatory</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="Due Date">Due Date</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="Assigned to">Assigned to</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="Status">Status</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate slds-text-align_center" title="Completed">Completed</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={tasks} for:item="t">
+                    <tr key={t.Id}
+                        data-id={t.Id}
+                        class={t.rowClass}
+                        onclick={handleSelectedRow}>
+                        <td class="slds-text-align_right">
+                            <div class="name-column-container slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
+                                
+                                <div class="helptext-container slds-p-right_x-small">
+                                    <template lwc:if={t.hasInstrunction}>
+                                        <lightning-helptext 
+                                            content={t.Plan_Item__r.Instructions__c}
+                                            class="custom-helptext">
+                                        </lightning-helptext>
+                                    </template>
+                                </div>
 
-                                    <div class="slds-truncate slds-text-title_bold slds-text-link clickable" 
-                                        title={t.Subject} 
-                                        dir="rtl">
-                                        {t.Subject}
-                                    </div>
-                                    
+                                <div class="slds-truncate slds-text-title_bold slds-text-link clickable" 
+                                    title={t.Subject} 
+                                    dir="rtl">
+                                    {t.Subject}
                                 </div>
-                            </td>
-                            <td>
-                                <template lwc:if={t.isMandatory}>
-                                    <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-center">
-                                        <lightning-icon icon-name="utility:check" alternative-text="mandatory" size="x-small"></lightning-icon>
-                                    </div>
-                                </template>
-                            </td>
-                            <td>
-                                <div class={t.dateClass} title={t.ActivityDate}>
-                                    <lightning-formatted-date-time
-                                        value={t.ActivityDate}
-                                        year="numeric"
-                                        month="2-digit"
-                                        day="2-digit">
-                                    </lightning-formatted-date-time>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="assigned-to-container slds-truncate slds-text-title_bold" title={t.Owner.Name}>
-                                    <span>{t.Owner.Name}</span>
-                                    
-                                    <lightning-button-icon
-                                        icon-name="utility:change_owner"
-                                        alternative-text="Change owner"
-                                        class="custom-owner-icon slds-m-left_x-small"
-                                        data-id={t.Id}
-                                        variant="bare"
-                                        size="small"
-                                        onclick={handleChangeOwner}>
-                                    </lightning-button-icon>                                
-                                </div>
-                            </td>
-                            <td>
-                                <div class="slds-truncate slds-text-title_bold" title={t.Status}>
-                                    {t.Status}
-                                </div>
-                            </td>
-                            <td>
+                                
+                            </div>
+                        </td>
+                        <td>
+                            <template lwc:if={t.isMandatory}>
                                 <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-center">
-                                    <lightning-button-icon
-                                        data-id={t.Id}
-                                        icon-name={t.iconName}
-                                        variant="border-filled"
-                                        size="small"
-                                        alternative-text={t.checkboxLabel}
-                                        disabled={t.disabled}
-                                        onclick={handleStatusClick}>
-                                    </lightning-button-icon>
+                                    <lightning-icon icon-name="utility:check" alternative-text="mandatory" size="x-small"></lightning-icon>
                                 </div>
-                            </td>
+                            </template>
+                        </td>
+                        <td>
+                            <div class={t.dateClass} title={t.ActivityDate}>
+                                <lightning-formatted-date-time
+                                    value={t.ActivityDate}
+                                    year="numeric"
+                                    month="2-digit"
+                                    day="2-digit">
+                                </lightning-formatted-date-time>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="assigned-to-container slds-truncate slds-text-title_bold" title={t.Owner.Name}>
+                                <span>{t.Owner.Name}</span>
+                                
+                                <lightning-button-icon
+                                    icon-name="utility:change_owner"
+                                    alternative-text="Change owner"
+                                    class="custom-owner-icon slds-m-left_x-small"
+                                    data-id={t.Id}
+                                    variant="bare"
+                                    size="small"
+                                    onclick={handleChangeOwner}>
+                                </lightning-button-icon>                                
+                            </div>
+                        </td>
+                        <td>
+                            <div class="slds-truncate slds-text-title_bold" title={t.Status}>
+                                {t.Status}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-center">
+                                <lightning-button-icon
+                                    data-id={t.Id}
+                                    icon-name={t.displayIconName}
+                                    variant="border-filled"
+                                    size="small"
+                                    alternative-text={t.checkboxLabel}
+                                    disabled={t.displayDisabled}
+                                    onclick={handleStatusClick}>
+                                </lightning-button-icon>
+                            </div>
+                        </td>
 
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
-        </div>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
 
-        <template lwc:if={openTaskDetailsModal}>
-            <c-task-details-modal
-                task={selectedTask}
-                onclose={handleCloseModal}
-                onsaved={handleTaskSaved}>
-            </c-task-details-modal>
-        </template>
+    <template lwc:if={openTaskDetailsModal}>
+        <c-task-details-modal
+            task={selectedTask}
+            onclose={handleCloseModal}
+            onsaved={handleTaskSaved}>
+        </c-task-details-modal>
+    </template>
 
-        <template lwc:if={openChangeOwnerModal}>
-            <c-change-owner-modal
-                task={selectedTask}
-                onclose={handleCloseModal}
-                onsaved={handleTaskSaved}>
-            </c-change-owner-modal>
-        </template>
-
+    <template lwc:if={openChangeOwnerModal}>
+        <c-change-owner-modal
+            task={selectedTask}
+            onclose={handleCloseModal}
+            onsaved={handleTaskSaved}>
+        </c-change-owner-modal>
     </template>
 
     <template lwc:if={openConfirmModal}>
