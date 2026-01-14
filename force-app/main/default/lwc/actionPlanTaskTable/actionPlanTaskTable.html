@@ -5,14 +5,14 @@
         </div>
     </template>
     <div class="slds-scrollable_x">
-        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered planPanel">
             <thead>
                 <tr class="slds-line-height_reset">
-                    <th scope="col" class="slds-text-align_center">
+                    <th scope="col">
                         <div class="slds-truncate" title="Name">Name</div>
                     </th>
                     <th scope="col">
-                        <div class="slds-truncate" title="Mandatory">Mandatory</div>
+                        <div class="slds-truncate slds-text-align_center" title="Mandatory">Mandatory</div>
                     </th>
                     <th scope="col">
                         <div class="slds-truncate" title="Due Date">Due Date</div>
@@ -34,8 +34,8 @@
                         data-id={t.Id}
                         class={t.rowClass}
                         onclick={handleSelectedRow}>
-                        <td class="slds-text-align_right">
-                            <div class="name-column-container slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
+                        <td>
+                            <div class="name-column-container slds-grid slds-grid_vertical-align-center">
                                 
                                 <div class="helptext-container slds-p-right_x-small">
                                     <template lwc:if={t.hasInstrunction}>
@@ -46,9 +46,9 @@
                                     </template>
                                 </div>
 
-                                <div class="slds-truncate slds-text-title_bold slds-text-link clickable" 
+                                <div class="slds-truncate slds-text-title_bold slds-text-link clickable rtl-text" 
                                     title={t.Subject} 
-                                    dir="rtl">
+                                    >
                                     {t.Subject}
                                 </div>
                                 

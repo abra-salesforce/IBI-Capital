@@ -40,14 +40,14 @@ tbody tr:last-child td:last-child{
     transform: translateY(-1.5px);
 }
 
-.custom-helptext {
+/*.custom-helptext {
     display: flex;
     line-height: 0;
 }
 
 .custom-helptext :host {
     display: flex;
-}
+}*/
 
 .assigned-to-container {
     display: flex;
@@ -65,4 +65,8 @@ tbody tr:last-child td:last-child{
     display: flex;
     align-items: center;
     height: auto;
+}
+
+.rtl-text{
+    direction: rtl;
 }

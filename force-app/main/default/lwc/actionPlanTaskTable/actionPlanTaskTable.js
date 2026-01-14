@@ -1,7 +1,8 @@
 import { LightningElement, api, wire, track } from 'lwc';
 import updateStatus from '@salesforce/apex/ActionPlanPanelController.updateTaskStatus';
 import getPlanTasks from '@salesforce/apex/ActionPlanPanelController.getPlanTasks';
-import LightningConfirm from 'lightning/confirm';
+import planCssNubbinBottom from '@salesforce/resourceUrl/planCSS_nubbin_buttom';
+import { loadStyle } from 'lightning/platformResourceLoader';
 
 export default class ActionPlanTaskTable extends LightningElement {
     @api plan;
@@ -11,7 +12,18 @@ export default class ActionPlanTaskTable extends LightningElement {
     currentModal = null;
     updatingTaskId = null;
 
-    connectedCallback() {
+    _styleLoaded = false;
+
+    async connectedCallback() {
+      if (!this._styleLoaded) {
+        this._styleLoaded = true;
+        try {
+          await loadStyle(this, planCssNubbinBottom);
+        } catch (e) {
+
+        }
+      }
+
       this.loadTasks();
     }
 
