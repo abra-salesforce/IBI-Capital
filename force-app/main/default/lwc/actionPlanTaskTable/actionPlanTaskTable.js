@@ -56,28 +56,29 @@ export default class ActionPlanTaskTable extends LightningElement {
     }
 
     enrichTask(t, today) {
-  const status = t.Status;
-  const due = t.ActivityDate ? new Date(t.ActivityDate) : null;
-  if (due) due.setHours(0, 0, 0, 0);
+      const status = t.Status;
+      const due = t.ActivityDate ? new Date(t.ActivityDate) : null;
+      if (due) due.setHours(0, 0, 0, 0);
 
-  const isOverdue = !!due && due < today && status !== 'Completed';
+      const isOverdue = !!due && due < today && status !== 'Completed';
 
-  const isUpdating = (t.Id === this.updatingTaskId);
+      const isUpdating = (t.Id === this.updatingTaskId);
 
-  const baseIcon = status === 'Completed' ? 'utility:check' : null;
+      const baseIcon = status === 'Completed' ? 'utility:check' : null;
 
-  return {
-    ...t,
-    Completed: status === 'Completed',
-    checkboxLabel: status === 'Completed' ? 'Completed' : 'Mark as completed',
-    displayIconName: isUpdating ? 'utility:spinner' : (status === 'Completed' ? 'utility:check' : null),
-    displayDisabled: (status === 'Waiting in Dependency') || isUpdating,
-    isMandatory: !!t.Plan_Item__r?.Is_Mandatory__c,
-    hasInstrunction: t.Plan_Item__r?.Instructions__c != null,
-    dateClass: 'slds-truncate slds-text-title_bold ' + (isOverdue ? 'slds-text-color_error' : ''),
-    rowClass: `slds-hint-parent task-row ${this.getRowClassByStatus(status)}`
-  };
-}
+      return {
+        ...t,
+        Completed: status === 'Completed',
+        checkboxLabel: status === 'Completed' ? 'Completed' : 'Mark as completed',
+        displayIconName: isUpdating ? 'utility:spinner' : (status === 'Completed' ? 'utility:check' : null),
+        displayDisabled: (status === 'Waiting in Dependency') || isUpdating,
+        isMandatory: !!t.Plan_Item__r?.Is_Mandatory__c,
+        hasInstrunction: t.Plan_Item__r?.Instructions__c != null,
+        createsPlanOnComplete: !!t.Plan_Item__r?.Plan_Template_If_Completed__c,
+        dateClass: 'slds-truncate slds-text-title_bold ' + (isOverdue ? 'slds-text-color_error' : ''),
+        rowClass: `slds-hint-parent task-row ${this.getRowClassByStatus(status)}`
+      };
+    }
 
 
     getRowClassByStatus(status) {
@@ -138,6 +139,9 @@ export default class ActionPlanTaskTable extends LightningElement {
         }
 
         try {
+            const willComplete = !isCurrentlyCompleted;
+            const shouldRefreshPlans = willComplete && task.createsPlanOnComplete;
+
             const result = await updateStatus({ taskId, status: newStatus });
 
             const updated = result?.updatedTasks || [];
@@ -156,6 +160,14 @@ export default class ActionPlanTaskTable extends LightningElement {
                 bubbles: true,
                 composed: true
             }));
+
+            if (shouldRefreshPlans) {
+              this.dispatchEvent(new CustomEvent('refreshplansrequested', {
+                detail: { sourcePlanId: this.plan?.Id, taskId },
+                bubbles: true,
+                composed: true
+              }));
+            }
         } catch (e) {
             const msg = e?.body?.message || 'שגיאה בעדכון המשימה';
             this.dispatchEvent(new CustomEvent('validationerror', {

@@ -7,6 +7,7 @@ export default class ActionPlanPanel extends LightningElement {
     @track plans = [];    
     @api recordId;
     @api planLookupFieldApiName;
+    _refreshTimeout;
 
     connectedCallback() {
       this.loadPlans();
@@ -67,6 +68,32 @@ export default class ActionPlanPanel extends LightningElement {
           iconName: tasksOpen ? 'utility:chevrondown' : 'utility:chevronright'
       };
     }
+
+    async addMissingPlansInOrder() {
+      try {
+        const fresh = await getPlans({
+          recordId: this.recordId,
+          apiFieldName: this.planLookupFieldApiName
+        });
+
+        const existingById = new Map(this.plans.map(p => [p.Id, p]));
+
+        this.plans = (fresh || []).map(p => {
+          const existing = existingById.get(p.Id);
+          return this.buildPlan(p, existing); 
+        });
+      } catch (e) {
+        console.error('addMissingPlansInOrder error:', e?.body ?? e);
+      }
+    }
+
+    handleRefreshPlansRequested() {
+      window.clearTimeout(this._refreshTimeout);
+      this._refreshTimeout = window.setTimeout(() => {
+        this.addMissingPlansInOrder();
+      }, 400);
+    }
+
 
 
     async handleTaskStatusChange(event) {

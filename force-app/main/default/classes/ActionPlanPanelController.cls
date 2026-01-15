@@ -4,7 +4,7 @@ public with sharing class ActionPlanPanelController {
         'Id, Name, Status__c, Completed_Plan_Item__c, Total_Plan_Item__c,' +
         ' Total_Mandatory_Plan_Item__c, Completed_Mandatory_Plan_Item__c,' +
         ' Progress_Mandatory_Plan_FormulaItem__c, Owner.Name, Start_Date__c,' +
-        ' Progress_Formula__c';
+        ' Progress_Formula__c, CreatedDate';
 
     @AuraEnabled
     public static List<Plan__c> getPlans(Id recordId, String apiFieldName){
@@ -43,7 +43,7 @@ public with sharing class ActionPlanPanelController {
         if (taskIds.isEmpty()) return new List<Task>();
 
         return [
-        SELECT Id, Subject, Status, Description, ActivityDate, OwnerId, Owner.Name, Plan_Item__r.Instructions__c, Plan_Item__r.Is_Mandatory__c
+        SELECT Id, Subject, Status, Description, ActivityDate, OwnerId, Owner.Name, Plan_Item__r.Instructions__c, Plan_Item__r.Is_Mandatory__c, Plan_Item__r.Plan_Template_If_Completed__c
         FROM Task
         WHERE Id IN :taskIds order by Plan_Item__r.Step_Order__c
         ];
