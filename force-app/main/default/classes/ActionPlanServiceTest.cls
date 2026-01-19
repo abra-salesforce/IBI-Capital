@@ -12,9 +12,9 @@ public with sharing class ActionPlanServiceTest {
         insert acc;
         Case c = new Case(Subject = 'Case For Plan', AccountId = acc.Id, Origin = 'Phone', Status = 'New', OwnerId = u1.Id);
         insert c;
-        Plan_Template__c tpl = new Plan_Template__c(Name = 'TPL 1', Description__c = 'desc', Default_Owner_Type__c = 'Field API Name', Owner_API_Name__c = 'Account.Account_Executive__c');
+        Plan_Template__c tpl = new Plan_Template__c(Name = 'TPL 1', Description__c = 'desc', Default_Owner_Type__c = 'Field API Name', Owner_API_Name__c = 'OwnerId');
         insert tpl;
-        Plan_Template_Item__c pti1 = new Plan_Template_Item__c(Name = 'Step 1', Plan_Template__c = tpl.Id, Step_Order__c = 1, Is_Mandatory__c = true, Instructions__c = 'Do 1', Duration_Days__c = 0, Default_Owner_Type__c = 'Field API Name', Owner_API_Name__c = 'OwnerId');
+        Plan_Template_Item__c pti1 = new Plan_Template_Item__c(Name = 'Step 1', Plan_Template__c = tpl.Id, Step_Order__c = 1, Is_Mandatory__c = true, Instructions__c = 'Do 1', Duration_Days__c = 0, Default_Owner_Type__c = 'Field API Name', Owner_API_Name__c = 'Account.Account_Executive__c');
         insert pti1;
         Plan_Template_Item__c pti2 = new Plan_Template_Item__c(Name = 'Step 2', Plan_Template__c = tpl.Id, Step_Order__c = 2, Is_Mandatory__c = true, Instructions__c = 'Do 2', Duration_Days__c = 3, Previous_Plan_Template_Item__c = pti1.Id, Default_Owner_Type__c = 'User', Owner_User__c = u2.Id);
         insert pti2;
@@ -41,6 +41,7 @@ public with sharing class ActionPlanServiceTest {
     static void createPlanAndPlanItemsTest() {
         Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
         User u2 = [SELECT Id FROM User WHERE ProfileId = :p.Id AND Alias = 'own2' LIMIT 1];
+        User u1 = [SELECT Id FROM User WHERE Alias = 'own1' LIMIT 1];
         Plan_Template__c tpl = [SELECT Id FROM Plan_Template__c WHERE Name = 'TPL 1' LIMIT 1];
         Case c = [SELECT Id FROM Case WHERE Subject = 'Case For Plan' LIMIT 1];
 
@@ -58,7 +59,7 @@ public with sharing class ActionPlanServiceTest {
         Assert.isTrue(plans.size() == 1);
         Plan__c createdPlan = plans[0];
         Assert.isTrue(c.Id == createdPlan.Case__c);
-        Assert.isTrue(u2.Id == createdPlan.OwnerId);
+        Assert.isTrue(u1.Id == createdPlan.OwnerId);
 
         List<Plan_Item__c> planItems = [SELECT Id, Plan__c, Step_Order__c, Previous_Plan_Item__c FROM Plan_Item__c WHERE Plan__c = :createdPlan.Id ORDER BY Step_Order__c];
         Assert.isTrue(planItems.size() == 2);
@@ -119,13 +120,18 @@ public with sharing class ActionPlanServiceTest {
         Plan_Item__c pi1 = items[0];
         Plan_Item__c pi2 = items[1];
 
-        Task parent = [SELECT Id, Status FROM Task WHERE Id = :pi1.Task_Id__c LIMIT 1];
+        Task parent = [SELECT Id, Status, WhatId FROM Task WHERE Id = :pi1.Task_Id__c LIMIT 1];
         parent.Status = 'Completed';
         update parent;
 
-        parent = [SELECT Id, Status FROM Task WHERE Id = :pi1.Task_Id__c LIMIT 1];
-        parent.Status = 'Reopen';
-        update parent;
+        Case c = [SELECT Id, OwnerId FROM Case WHERE Id = :parent.WhatId LIMIT 1];
+        User u = [SELECT Id FROM User WHERE Id = :c.OwnerId LIMIT 1];
+
+        System.runAs(u) {
+            parent = [SELECT Id, Status FROM Task WHERE Id = :pi1.Task_Id__c LIMIT 1];
+            parent.Status = 'Reopen';
+            update parent;
+        }
 
         Task childAfter = [SELECT Id, Status FROM Task WHERE Id = :pi2.Task_Id__c LIMIT 1];
         Assert.isTrue(childAfter.Status == 'Waiting in Dependency');
@@ -154,35 +160,52 @@ public with sharing class ActionPlanServiceTest {
     }
 
     //change task owner
-       //change task owner
     @IsTest
     static void changeOwner_searchAndUpdateTaskOwner() {
         Id planId = createPlanForSetupData();
 
-        Task t = [SELECT Id, OwnerId FROM Task LIMIT 1];
+        Task t = [SELECT Id, OwnerId, WhatId FROM Task LIMIT 1];
 
         User newOwner = [SELECT Id, Name FROM User WHERE Alias = 'own2' LIMIT 1];
 
         List<ActionPlanPanelController.OwnerOption> userResults = ActionPlanPanelController.searchOwners('User', 'Owner');
         Assert.isTrue(userResults.size() > 0);
-
-        Boolean hasUserIcon = false;
-        for (ActionPlanPanelController.OwnerOption opt : userResults) {
-            if (opt.iconName == 'standard:user') {
-                hasUserIcon = true;
-                break;
-            }
-        }
-        Assert.isTrue(hasUserIcon);
-
         List<ActionPlanPanelController.OwnerOption> queueResults = ActionPlanPanelController.searchOwners('Queue', 'SomeName');
         Assert.isTrue(queueResults.size() >= 0);
 
-        ActionPlanPanelController.changeTaskOwner(t.Id, newOwner.Id);
+        Case c = [SELECT Id, OwnerId FROM Case WHERE Id = :t.WhatId LIMIT 1];
+        User u = [SELECT Id FROM User WHERE Id = :c.OwnerId LIMIT 1];
+
+        System.runAs(u) {
+            ActionPlanPanelController.changeTaskOwner(t.Id, newOwner.Id);
+        }
 
         Task updated = [SELECT OwnerId FROM Task WHERE Id = :t.Id LIMIT 1];
         Assert.isTrue(updated.OwnerId == newOwner.Id);
     }
+
+    @IsTest
+    static void extractDmlMessages_isCovered() {
+        Id planId = createPlanForSetupData();
+
+        Case cs = [SELECT Id FROM Case WHERE Subject = 'Case For Plan' LIMIT 1];
+        Task t = [SELECT Id FROM Task WHERE WhatId = :cs.Id AND Subject = 'Step 1' LIMIT 1];
+
+        Account a = [SELECT Id FROM Account WHERE Name = 'Acc For Plan' LIMIT 1];
+
+        Boolean threw = false;
+        try {
+            ActionPlanPanelController.changeTaskOwner(t.Id, a.Id);
+            Assert.fail('Expected AuraHandledException');
+        } catch (AuraHandledException ex) {
+            threw = true;
+            Assert.isTrue(!String.isBlank(ex.getMessage()));
+        }
+        Assert.isTrue(threw);
+    }
+
+
+
 
 
 

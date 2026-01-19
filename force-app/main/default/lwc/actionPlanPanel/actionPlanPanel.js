@@ -89,12 +89,22 @@ export default class ActionPlanPanel extends LightningElement {
 
     handleRefreshPlansRequested() {
       window.clearTimeout(this._refreshTimeout);
-      this._refreshTimeout = window.setTimeout(() => {
-        this.addMissingPlansInOrder();
-      }, 400);
+
+      let attempt = 0;
+      const maxAttempts = 5;
+
+      const run = async () => {
+        attempt += 1;
+        await this.addMissingPlansInOrder();
+
+        if (attempt < maxAttempts) {
+          const delay = 400 * attempt;
+          this._refreshTimeout = window.setTimeout(run, delay);
+        }
+      };
+
+      this._refreshTimeout = window.setTimeout(run, 400);
     }
-
-
 
     async handleTaskStatusChange(event) {
       const planId = event.detail?.planId;

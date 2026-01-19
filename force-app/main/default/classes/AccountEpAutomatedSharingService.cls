@@ -1,7 +1,7 @@
 public without sharing class AccountEpAutomatedSharingService {
 
     public static void sharingProcess(List<Account> records, Map<Id, Account> oldAccounts) {
-        //1
+        // Identify relevant EP child accounts from the trigger and collect related Master Account Ids and PersonContactIds
         Set<Id> masterIdsToProcess = new Set<Id>();
         Set<Id> personContactIdsFromTrigger = new Set<Id>();
 
@@ -28,7 +28,7 @@ public without sharing class AccountEpAutomatedSharingService {
         Map<Id, Id> contactIdToMasterId = new Map<Id, Id>();
 
         if (!personContactIdsFromTrigger.isEmpty()) {
-            for (AccountContactRelation acr : [SELECT AccountId, ContactId FROM AccountContactRelation WHERE ContactId IN :personContactIdsFromTrigger]) {
+            for (AccountContactRelation acr : [SELECT AccountId, ContactId FROM AccountContactRelation WHERE ContactId IN :personContactIdsFromTrigger AND Account.Record_Type_Developer_Name__c = 'Person_Account_Master']) {
                 masterIdsToProcess.add(acr.AccountId);
                 contactIdToMasterId.put(acr.ContactId, acr.AccountId);
             }
@@ -86,7 +86,7 @@ public without sharing class AccountEpAutomatedSharingService {
             masterToAllChildren.get(masterId).add(child);
         }
 
-        //2
+        // Collect current OwnerIds for each master based on all its child accounts
         Map<Id, Set<Id>> masterToCurrentOwners = new Map<Id, Set<Id>>();
 
         for (Id masterId : masterToAllChildren.keySet()) {
@@ -109,7 +109,7 @@ public without sharing class AccountEpAutomatedSharingService {
             }
         }
 
-        //3
+        // Collect previous OwnerIds (before update/delete) and create keys for potential share removal.
         Map<Id, Set<Id>> masterToPreviousOwners = new Map<Id, Set<Id>>();
         Set<String> previousOwnerKeys = new Set<String>();
 
@@ -154,7 +154,7 @@ public without sharing class AccountEpAutomatedSharingService {
             }
         }
 
-        //4
+        // Collect all account Ids (masters + children) to query existing AccountShare records.
         Set<Id> allAccountIdsInvolved = new Set<Id>(masterIdsToProcess);
 
         for (Id masterId : masterToAllChildren.keySet()) {
@@ -175,8 +175,7 @@ public without sharing class AccountEpAutomatedSharingService {
             }
         }
 
-        // 5
-
+        // Build desired AccountShare map based on current owners of each master and all its children
         Map<String, AccountShare> desiredShares = new Map<String, AccountShare>();
 
         for (Id masterId : masterToCurrentOwners.keySet()) {
@@ -211,7 +210,7 @@ public without sharing class AccountEpAutomatedSharingService {
             }
         }
 
-        // 6 + 7
+        // Compare desired to existing shares to determine which to insert and which to delete
         List<AccountShare> toInsert = new List<AccountShare>();
         List<AccountShare> toDelete = new List<AccountShare>();
 
