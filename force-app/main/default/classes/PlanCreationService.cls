@@ -31,26 +31,24 @@ public without sharing class PlanCreationService {
 			if (pti.Owner_API_Name__c != null) ownerPaths.add(pti.Owner_API_Name__c);
 		}
 
-		String query = 'SELECT Id';
+		String query = 'SELECT Id, OwnerId';
 		for (String p : ownerPaths) {
+			if(p == 'OwnerId') continue;
 			query += ',' + p;
 		}
 		query += ' FROM ' + sObjName + ' WHERE Id = \'' + String.valueOf(input.recordId) + '\'';
 
 		SObject record = Database.query(query);
 
-		Id planAssignedTo = getOwner(planTemplate.Default_Owner_Type__c, record, planTemplate, planTemplate);
-
-
-
 		Plan__c plan = new Plan__c (Name = planTemplate.Name,
 									Plan_Template__c = planTemplate.Id,
 									Start_Date__c = Date.today(),
 									Notes__c = planTemplate.Description__c);
         plan.put(input.lookupFieldApiName, input.recordId);
-		plan.OwnerId = planAssignedTo;
+		plan.OwnerId = (Id) record.get('OwnerId');
 		
 		insert plan;
+
 		List<Plan_Item__c> planItems = new List<Plan_Item__c>();
 		Map<Id,Plan_Item__c> planTemplateItemToPlanItem = new Map<Id,Plan_Item__c>();
 		Map<Id, Plan_Template_Item__c> templateItemById = new Map<Id, Plan_Template_Item__c>(templateItems);
@@ -89,7 +87,7 @@ public without sharing class PlanCreationService {
 			Plan_Item__c pi = planTemplateItemToPlanItem.get(pti.Id);
 
 			Id TaskAssignedTo = getOwner(pti.Default_Owner_Type__c, record, pti, planTemplate);
-			system.debug('TaskAssignedTo: ' + TaskAssignedTo + 'pti: ' + pti.Name);
+			system.debug('TaskAssignedTo: ' + TaskAssignedTo + ' pti: ' + pti.Name);
 
 			Date baseDate = (input.startDate != null) ? input.startDate : Date.today();
             Integer durationDays = pti.Duration_Days__c != null ? Integer.valueOf(pti.Duration_Days__c) : 0;
@@ -115,13 +113,20 @@ public without sharing class PlanCreationService {
 				: (type == 'Queue') ? template.get('Owner_Queue__c')
 				: null;
 		Id ownerId = resolveOwnerId(raw);
+		System.debug('110: '+ ownerId + 'pti: ' + template.get('Name'));
 
 		if (ownerId == null) {
 			String ownerPath = (String)template.get('Owner_API_Name__c');
 			ownerId = resolveOwnerId(getByPath(record, ownerPath));
 		}
 
+		System.debug('115: '+ ownerId + 'pti: ' + template.get('Name'));
+
+
 		if (ownerId == null) return fallback;
+
+		System.debug('126: '+ ownerExists(ownerId) + 'pti: ' + template.get('Name'));
+
 
 		if (!ownerExists(ownerId)) return fallback;
 
@@ -131,6 +136,8 @@ public without sharing class PlanCreationService {
 		}
 
 		Boolean userOrQueue = String.valueOf(ownerId).startsWith('005') || String.valueOf(ownerId).startsWith('00G');
+		System.debug('133: '+ userOrQueue + 'pti: ' + template.get('Name'));
+
 		return userOrQueue ? ownerId : fallback;
 	}
 

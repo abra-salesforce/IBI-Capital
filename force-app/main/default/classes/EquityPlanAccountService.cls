@@ -8,8 +8,9 @@ public with sharing class EquityPlanAccountService {
     public static final Id EP_RECORDTYPE = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('Equity_Plans_Business_Account').getRecordTypeId();
 
     public static void serviceTypeValidation(List<Account> newAccounts, Map<Id, Account> oldAccounts) {
-        Set<String> accountIds = new Set<String>();
+        Set<Id> accountIds = new Set<Id>();
         Map<String, Account> serviceTypeBucketToAccount = new Map<String, Account>();
+        Set<Id> newOrUpdatedIds = new Set<Id>();
 
         for(Account acc : newAccounts) {
             if(acc.Service_Type__c != null &&
@@ -34,10 +35,12 @@ public with sharing class EquityPlanAccountService {
                     serviceTypeBucketToAccount.put(key, acc);
                 }
                 accountIds.add(acc.ParentId);
+                if(acc.Id != null) newOrUpdatedIds.add(acc.Id);
             }
         }
+        if(accountIds.isEmpty()) return;
 
-        for(Account ea : [SELECT ParentId, Service_Type__c FROM Account WHERE ParentId IN :AccountIds and Service_Type__c != null and RecordTypeId = :EP_RECORDTYPE]) {
+        for(Account ea : [SELECT ParentId, Service_Type__c FROM Account WHERE ParentId IN :AccountIds and Service_Type__c != null and RecordTypeId = :EP_RECORDTYPE AND Id NOT IN :newOrUpdatedIds]) {
             String eaKey = bucket(ea.Service_Type__c) + '-' + ea.ParentId;
             if(serviceTypeBucketToAccount.containsKey(eaKey)) {
                 Account newAccount = serviceTypeBucketToAccount.get(eaKey);

@@ -7,8 +7,9 @@ public without sharing class AccountEpAutomatedSharingService {
 
         for (Account acc : records) {
             Boolean isEpRt = acc.Record_Type_Developer_Name__c == 'Equity_Plans_Person_Account' || acc.Record_Type_Developer_Name__c == 'Equity_Plans_Business_Account';
-            Boolean isOwnerChanged = Trigger.isUpdate && oldAccounts != null && oldAccounts.containsKey(acc.Id) && acc.OwnerId != oldAccounts.get(acc.Id).OwnerId;
-            Boolean isRelevantEvent = Trigger.isInsert || Trigger.isDelete || Trigger.isUndelete || isOwnerChanged;
+            Boolean isOwnerOrIdChanged = Trigger.isUpdate && oldAccounts != null && oldAccounts.containsKey(acc.Id) &&
+                                    (acc.OwnerId != oldAccounts.get(acc.Id).OwnerId || acc.ID__c   != oldAccounts.get(acc.Id).ID__c);
+            Boolean isRelevantEvent = Trigger.isInsert || Trigger.isDelete || Trigger.isUndelete || isOwnerOrIdChanged;
 
             if (!isEpRt || !isRelevantEvent) {
                 continue;
@@ -211,6 +212,7 @@ public without sharing class AccountEpAutomatedSharingService {
         }
 
         // Compare desired to existing shares to determine which to insert and which to delete
+        Map<Id, Account> mastersMap = new Map<Id, Account>([SELECT Id, OwnerId FROM Account WHERE Id IN :masterIdsToProcess]);
         List<AccountShare> toInsert = new List<AccountShare>();
         List<AccountShare> toDelete = new List<AccountShare>();
 
@@ -222,7 +224,17 @@ public without sharing class AccountEpAutomatedSharingService {
 
         for (String key : previousOwnerKeys) {
             if (!desiredShares.containsKey(key) && existingShares.containsKey(key)) {
-                toDelete.add(existingShares.get(key));
+                AccountShare ash = existingShares.get(key);
+                
+                if (mastersMap.containsKey(ash.AccountId)) {
+                    Id masterOwnerId = mastersMap.get(ash.AccountId).OwnerId;
+                    
+                    if (ash.UserOrGroupId == masterOwnerId) {
+                        continue; 
+                    }
+                }
+                
+                toDelete.add(ash);
             }
         }
 
@@ -231,6 +243,7 @@ public without sharing class AccountEpAutomatedSharingService {
         }
 
         if (!toDelete.isEmpty()) {
+            System.debug('delete: ' + toDelete);
             delete toDelete;
         }
 
