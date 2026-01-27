@@ -1,0 +1,3 @@
+.planPanel .slds-nubbin_bottom-left::before, .slds-nubbin--bottom-left::before, .slds-nubbin_bottom-left::after, .slds-nubbin--bottom-left::after, .slds-nubbin_bottom-left-corner::before, .slds-nubbin--bottom-left-corner::before, .slds-nubbin_bottom-left-corner::after, .slds-nubbin--bottom-left-corner::after {
+	direction: ltr;
+}
