@@ -14,7 +14,8 @@ public with sharing class ActionPlanServiceTest {
         insert c;
         Plan_Template__c tpl = new Plan_Template__c(Name = 'TPL 1', Description__c = 'desc', Default_Owner_Type__c = 'Field API Name', Owner_API_Name__c = 'OwnerId');
         insert tpl;
-        Plan_Template_Item__c pti1 = new Plan_Template_Item__c(Name = 'Step 1', Plan_Template__c = tpl.Id, Step_Order__c = 1, Is_Mandatory__c = true, Instructions__c = 'Do 1', Duration_Days__c = 0, Default_Owner_Type__c = 'Field API Name', Owner_API_Name__c = 'Account.Account_Executive__c');
+        //Plan_Template_Item__c pti1 = new Plan_Template_Item__c(Name = 'Step 1', Plan_Template__c = tpl.Id, Step_Order__c = 1, Is_Mandatory__c = true, Instructions__c = 'Do 1', Duration_Days__c = 0, Default_Owner_Type__c = 'Field API Name', Owner_API_Name__c = 'Account.Account_Executive__c');
+        Plan_Template_Item__c pti1 = new Plan_Template_Item__c(Name = 'Step 1', Plan_Template__c = tpl.Id, Step_Order__c = 1, Is_Mandatory__c = true, Instructions__c = 'Do 1', Duration_Days__c = 0, Default_Owner_Type__c = 'Field API Name', Owner_API_Name__c = 'OwnerId');
         insert pti1;
         Plan_Template_Item__c pti2 = new Plan_Template_Item__c(Name = 'Step 2', Plan_Template__c = tpl.Id, Step_Order__c = 2, Is_Mandatory__c = true, Instructions__c = 'Do 2', Duration_Days__c = 3, Previous_Plan_Template_Item__c = pti1.Id, Default_Owner_Type__c = 'User', Owner_User__c = u2.Id);
         insert pti2;
@@ -102,9 +103,12 @@ public with sharing class ActionPlanServiceTest {
         Plan_Item__c pi1 = items[0];
         Plan_Item__c pi2 = items[1];
 
-        Task parent = [SELECT Id, Status FROM Task WHERE Id = :pi1.Task_Id__c LIMIT 1];
-        parent.Status = 'Completed';
-        update parent;
+        Task parent = [SELECT Id, Status, OwnerId FROM Task WHERE Id = :pi1.Task_Id__c LIMIT 1];
+        User uTask = [SELECT Id, Alias FROM User WHERE Id = :parent.OwnerId LIMIT 1];
+        System.runAs(uTask) {
+            parent.Status = 'Completed';
+            update parent;
+        }
 
         Task dependentAfter = [SELECT Id, Status FROM Task WHERE Id = :pi2.Task_Id__c LIMIT 1];
         Assert.isTrue(dependentAfter.Status == 'Open');
@@ -120,9 +124,12 @@ public with sharing class ActionPlanServiceTest {
         Plan_Item__c pi1 = items[0];
         Plan_Item__c pi2 = items[1];
 
-        Task parent = [SELECT Id, Status, WhatId FROM Task WHERE Id = :pi1.Task_Id__c LIMIT 1];
-        parent.Status = 'Completed';
-        update parent;
+        Task parent = [SELECT Id, Status, WhatId, OwnerId FROM Task WHERE Id = :pi1.Task_Id__c LIMIT 1];
+        User uTask = [SELECT Id, Alias FROM User WHERE Id = :parent.OwnerId LIMIT 1];
+        System.runAs(uTask) {
+            parent.Status = 'Completed';
+            update parent;
+        }
 
         Case c = [SELECT Id, OwnerId FROM Case WHERE Id = :parent.WhatId LIMIT 1];
         User u = [SELECT Id FROM User WHERE Id = :c.OwnerId LIMIT 1];
@@ -144,8 +151,11 @@ public with sharing class ActionPlanServiceTest {
         Case c = [SELECT Id FROM Case WHERE Subject = 'Case For Plan' LIMIT 1];
         ActionPlanPanelController.getPlans(c.Id, 'Case__c');
         ActionPlanPanelController.getPlanTasks(planId);
-        Task t = [SELECT Id, Status FROM Task LIMIT 1];
-        ActionPlanPanelController.updateTaskStatus(t.Id, 'Completed');
+        Task t = [SELECT Id, Status, OwnerId FROM Task LIMIT 1];
+        User uTask = [SELECT Id, Alias FROM User WHERE Id = :t.OwnerId LIMIT 1];
+        System.runAs(uTask) {
+            ActionPlanPanelController.updateTaskStatus(t.Id, 'Completed');
+        }
         ActionPlanPanelController.getPlanById(planId);
         ActionPlanPanelController.updateTaskDescriptionAndDate(t.Id, 'test', Date.today());
     }
@@ -204,11 +214,12 @@ public with sharing class ActionPlanServiceTest {
         Assert.isTrue(threw);
     }
 
-
-
-
-
-
-
+    //PlanTriggerHandler
+    @IsTest
+    static void deletePlan() {
+        Id planId = createPlanForSetupData();
+        Plan__c plan = [SELECT Id FROM Plan__c WHERE Id = :planId LIMIT 1];
+        delete plan;
+    }
 
 }

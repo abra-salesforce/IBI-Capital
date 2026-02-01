@@ -1,4 +1,6 @@
 public without sharing class PlanCreationService {
+	private static Map<Id, Boolean> userActiveCache = new Map<Id, Boolean>();
+
     public class PlanInput {
         @InvocableVariable(required=true)
         public Id planTemplateId;
@@ -107,32 +109,25 @@ public without sharing class PlanCreationService {
 	public class PlanCreationException extends Exception {}
 
 	private static Id getOwner(String type, SObject record, SObject template, Plan_Template__c parentTemplate){
+		type = (type == null) ? null : type.trim();
 		Id fallback = (Id)parentTemplate.get('OwnerId');
 
 		Object raw = (type == 'User') ? template.get('Owner_User__c')
 				: (type == 'Queue') ? template.get('Owner_Queue__c')
 				: null;
 		Id ownerId = resolveOwnerId(raw);
-		System.debug('110: '+ ownerId + 'pti: ' + template.get('Name'));
 
 		if (ownerId == null) {
 			String ownerPath = (String)template.get('Owner_API_Name__c');
 			ownerId = resolveOwnerId(getByPath(record, ownerPath));
 		}
 
-		System.debug('115: '+ ownerId + 'pti: ' + template.get('Name'));
-
-
 		if (ownerId == null) return fallback;
-
-		System.debug('126: '+ ownerExists(ownerId) + 'pti: ' + template.get('Name'));
-
 
 		if (!ownerExists(ownerId)) return fallback;
 
-		if (type == 'User' && String.valueOf(ownerId).startsWith('005')) {
-			User u = [SELECT IsActive FROM User WHERE Id = :ownerId LIMIT 1];
-			if (!u.IsActive) return fallback;
+		if (String.valueOf(ownerId).startsWith('005') && !isUserActiveCached(ownerId)) {
+			return fallback;
 		}
 
 		Boolean userOrQueue = String.valueOf(ownerId).startsWith('005') || String.valueOf(ownerId).startsWith('00G');
@@ -156,6 +151,16 @@ public without sharing class PlanCreationService {
 		}
 
 		return null;
+	}
+
+	private static Boolean isUserActiveCached(Id userId) {
+		if (userId == null) return false;
+
+		if (!userActiveCache.containsKey(userId)) {
+			List<User> users = [SELECT IsActive FROM User WHERE Id = :userId LIMIT 1];
+			userActiveCache.put(userId, !users.isEmpty() && users[0].IsActive);
+		}
+		return userActiveCache.get(userId);
 	}
 
 	private static Boolean ownerExists(Id ownerId) {
