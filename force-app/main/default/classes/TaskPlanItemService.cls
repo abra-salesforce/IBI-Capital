@@ -1,4 +1,4 @@
-public with sharing class TaskPlanItemService {
+public without sharing class TaskPlanItemService {
     public static Set<Id> changedTaskIds = new Set<Id>();
 
     public static void clearChanged() {
